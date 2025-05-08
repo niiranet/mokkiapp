@@ -91,4 +91,104 @@ public class VarausDAO {
         }
         return varaukset;
     }
+
+    public List<Varaustiedot> getReservationsByCottage(int mokkiId) {
+        List<Varaustiedot> varaukset = new ArrayList<>();
+        String sql = "SELECT * FROM Varaus WHERE mokki_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, mokkiId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    varaukset.add(new Varaustiedot(
+                            rs.getInt("varaus_id"),
+                            rs.getInt("asiakas_id"),
+                            rs.getInt("mokki_id"),
+                            rs.getDate("alkupvm").toLocalDate(),
+                            rs.getDate("loppupvm").toLocalDate(),
+                            rs.getDate("varaus_pvm").toLocalDate()
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return varaukset;
+    }
+
+    public List<Varaustiedot> getReservationsByMonth(int month) {
+        List<Varaustiedot> varaukset = new ArrayList<>();
+        String sql = "SELECT * FROM Varaus WHERE MONTH(alkupvm) = ? OR MONTH(loppupvm) = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, month);
+            ps.setInt(2, month);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    varaukset.add(new Varaustiedot(
+                            rs.getInt("varaus_id"),
+                            rs.getInt("asiakas_id"),
+                            rs.getInt("mokki_id"),
+                            rs.getDate("alkupvm").toLocalDate(),
+                            rs.getDate("loppupvm").toLocalDate(),
+                            rs.getDate("varaus_pvm").toLocalDate()
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return varaukset;
+    }
+
+    public List<Varaustiedot> haeVarauksetAsiakkaalle(int asiakasId) {
+        List<Varaustiedot> varaukset = new ArrayList<>();
+        String sql = "SELECT * FROM Varaus WHERE asiakas_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, asiakasId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    varaukset.add(new Varaustiedot(
+                            rs.getInt("varaus_id"),
+                            rs.getInt("asiakas_id"),
+                            rs.getInt("mokki_id"),
+                            rs.getDate("alkupvm").toLocalDate(),
+                            rs.getDate("loppupvm").toLocalDate(),
+                            rs.getDate("varaus_pvm").toLocalDate()
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return varaukset;
+    }
+
+    public List<Varaustiedot> haeVarauksetAsiakkaalle(int asiakasId, int kuukausi) {
+        List<Varaustiedot> varaukset = new ArrayList<>();
+        String sql = "SELECT * FROM Varaus WHERE asiakas_id = ? AND (MONTH(alkupvm) = ? OR MONTH(loppupvm) = ?)";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, asiakasId);
+            ps.setInt(2, kuukausi);
+            ps.setInt(3, kuukausi);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    varaukset.add(new Varaustiedot(
+                            rs.getInt("varaus_id"),
+                            rs.getInt("asiakas_id"),
+                            rs.getInt("mokki_id"),
+                            rs.getDate("alkupvm").toLocalDate(),
+                            rs.getDate("loppupvm").toLocalDate(),
+                            rs.getDate("varaus_pvm").toLocalDate()
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return varaukset;
+    }
 }

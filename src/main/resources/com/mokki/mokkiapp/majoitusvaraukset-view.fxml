@@ -130,7 +130,7 @@
 
             <children>
 
-                <Label layoutX="77.0" layoutY="50.0" text="Valitse mökki(ID)">
+                <Label layoutX="77.0" layoutY="50.0" text="Valitse mökki">
 
                     <font>
 
@@ -202,30 +202,30 @@
 
                 </Button>
 
-                <TableView layoutX="296.0" layoutY="116.0" prefHeight="191.0" prefWidth="975.0">
+                <TableView fx:id="asiakasTableView" layoutX="296.0" layoutY="116.0" prefHeight="191.0" prefWidth="975.0">
 
                     <columns>
 
-                        <TableColumn prefWidth="75.0" text="AsiakasID" />
+                        <TableColumn fx:id="asiakasIdColumn" prefWidth="75.0" text="AsiakasID" />
 
-                        <TableColumn prefWidth="75.0" text="Katuosoite" />
+                        <TableColumn fx:id="katuosoiteColumn" prefWidth="75.0" text="Katuosoite" />
 
-                        <TableColumn prefWidth="75.0" text="Postinumero" />
+                        <TableColumn fx:id="postinumeroColumn" prefWidth="75.0" text="Postinumero" />
 
-                        <TableColumn prefWidth="75.0" text="Puhelin" />
+                        <TableColumn fx:id="puhelinColumn" prefWidth="75.0" text="Puhelin" />
 
-                        <TableColumn prefWidth="75.0" text="Yrityksen" />
+                        <TableColumn fx:id="nimiColumn" prefWidth="75.0" text="Nimi" />
 
-                        <TableColumn prefWidth="75.0" text="Y-tunnus" />
+                        <TableColumn fx:id="ytunnusColumn" prefWidth="75.0" text="Y-tunnus" />
 
                     </columns>
 
                 </TableView>
-            <HBox layoutX="296.0" layoutY="85.0" prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <TextField promptText="Hae asiakas" />
-               </children>
-            </HBox>
+                <HBox layoutX="296.0" layoutY="85.0" prefHeight="100.0" prefWidth="200.0">
+                    <children>
+                        <TextField promptText="Hae asiakas" />
+                    </children>
+                </HBox>
 
             </children>
 

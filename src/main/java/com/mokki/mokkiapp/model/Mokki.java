@@ -2,7 +2,6 @@ package com.mokki.mokkiapp.model;
 
 import java.math.BigDecimal;
 
-
 public class Mokki {
     private int mokkiId;
     private String nimi, katuosoite, kuvaus;
@@ -19,41 +18,20 @@ public class Mokki {
     }
 
     public int getMokkiId() { return mokkiId; }
-    public String getNimi() { return nimi; }
-    public String getKatuosoite() { return katuosoite; }
-    public BigDecimal getHinta() { return hinta; }
-    public String getKuvaus() { return kuvaus; }
-    public Postialue getPostialue() { return postialue; }
-}
-
-
-
-/*
-public class Mokki {
-
-private int MokkiId;
-private String nimi;
-private String katuosoite;
-private String postinumero;
-private double hinta;
-private String kuvaus;
-
-    // Konstruktori
-    public Mokki(int mokkiId, String nimi, String katuosoite, String postinumero, double hinta, String kuvaus) {
-        this.MokkiId = mokkiId;
-        this.nimi = nimi;
-        this.katuosoite = katuosoite;
-        this.postinumero = postinumero;
-        this.hinta = hinta;
-        this.kuvaus = kuvaus;
-    }
-
-    // Getterit ja setterit...
-    public int getMokkiId() { return MokkiId; }
+    public void setMokkiId(int mokkiId) { this.mokkiId = mokkiId; }
     public String getNimi() { return nimi; }
     public void setNimi(String nimi) { this.nimi = nimi; }
-    // Lisää muut getterit ja setterit
+    public String getKatuosoite() { return katuosoite; }
+    public void setKatuosoite(String katuosoite) { this.katuosoite = katuosoite; }
+    public BigDecimal getHinta() { return hinta; }
+    public void setHinta(BigDecimal hinta) { this.hinta = hinta; }
+    public String getKuvaus() { return kuvaus; }
+    public void setKuvaus(String kuvaus) { this.kuvaus = kuvaus; }
+    public Postialue getPostialue() { return postialue; }
+    public void setPostialue(Postialue postialue) { this.postialue = postialue; }
 
+    @Override
+    public String toString() {
+        return nimi; // Näytetään nimi ComboBoxissa
+    }
 }
-*/
-

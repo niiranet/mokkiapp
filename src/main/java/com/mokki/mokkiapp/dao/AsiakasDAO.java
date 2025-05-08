@@ -12,8 +12,8 @@ public class AsiakasDAO {
     public Yksityishenkilo haeYksityishenkilo(int asiakasId) {
         String sql =
                 "SELECT * FROM Asiakas " +
-                "JOIN Yksityishenkilo USING(asiakas_id) " +
-                "JOIN Postialue USING(postinumero) WHERE asiakas_id = ?";
+                        "JOIN Yksityishenkilo USING(asiakas_id) " +
+                        "JOIN Postialue USING(postinumero) WHERE asiakas_id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, asiakasId);
@@ -42,8 +42,8 @@ public class AsiakasDAO {
     public Yritys haeYritys(int asiakasId) {
         String sql =
                 "SELECT * FROM Asiakas " +
-                "JOIN Yritys USING(asiakas_id) " +
-                "JOIN Postialue USING(postinumero) WHERE asiakas_id = ?";
+                        "JOIN Yritys USING(asiakas_id) " +
+                        "JOIN Postialue USING(postinumero) WHERE asiakas_id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, asiakasId);
@@ -67,6 +67,60 @@ public class AsiakasDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Yksityishenkilo> haeKaikkiYksityishenkilot() {
+        List<Yksityishenkilo> yksityishenkilot = new ArrayList<>();
+        String sql = "SELECT * FROM Asiakas JOIN Yksityishenkilo USING(asiakas_id) JOIN Postialue USING(postinumero)";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Postialue pa = new Postialue(
+                        rs.getString("postinumero"),
+                        rs.getString("kunta"),
+                        rs.getString("maa"));
+                yksityishenkilot.add(new Yksityishenkilo(
+                        rs.getInt("asiakas_id"),
+                        rs.getString("katuosoite"),
+                        rs.getString("email"),
+                        rs.getString("puhelin"),
+                        pa,
+                        rs.getString("etunimi"),
+                        rs.getString("sukunimi")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return yksityishenkilot;
+    }
+
+    public List<Yritys> haeKaikkiYritykset() {
+        List<Yritys> yritykset = new ArrayList<>();
+        String sql = "SELECT * FROM Asiakas JOIN Yritys USING(asiakas_id) JOIN Postialue USING(postinumero)";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Postialue pa = new Postialue(
+                        rs.getString("postinumero"),
+                        rs.getString("kunta"),
+                        rs.getString("maa"));
+                yritykset.add(new Yritys(
+                        rs.getInt("asiakas_id"),
+                        rs.getString("katuosoite"),
+                        rs.getString("email"),
+                        rs.getString("puhelin"),
+                        pa,
+                        rs.getString("yrityksen_nimi"),
+                        rs.getString("y_tunnus")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return yritykset;
     }
 
     /*
