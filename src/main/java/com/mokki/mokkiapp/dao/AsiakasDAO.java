@@ -69,7 +69,7 @@ public class AsiakasDAO {
         return null;
     }
 
-
+    /*
     public void paivitaAsiakasTiedot(Asiakas asiakas) {
         String sql = "UPDATE Asiakas SET katuosoite = ?, postinumero = ?, email = ?, puhelin = ? WHERE asiakas_id = ?";
 
@@ -105,6 +105,8 @@ public class AsiakasDAO {
             e.printStackTrace();
         }
     }
+
+    */
 
 }
 
