@@ -38,11 +38,17 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mokki.mokkiapp.MokitController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mokki.mokkiapp.AsiakashallintaController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -97,5 +103,63 @@
             </Label>
          </children>
       </HBox>
+      <TableView fx:id="asiakkaatTaulukko" prefHeight="200.0" prefWidth="200.0">
+        <columns>
+          <TableColumn fx:id="asiakasIdSarake" prefWidth="75.0" text="Asiakas ID" />
+          <TableColumn fx:id="katuosoiteSarake" prefWidth="75.0" text="Katuosoite" />
+            <TableColumn fx:id="postinumeroSarake" prefWidth="75.0" text="Postinumero" />
+            <TableColumn fx:id="puhelinSarake" prefWidth="75.0" text="Puhelin" />
+            <TableColumn fx:id="emailSarake" prefWidth="75.0" text="Email" />
+            <TableColumn fx:id="etunimiSarake" prefWidth="75.0" text="Etunimi" />
+            <TableColumn fx:id="sukunimiSarake" prefWidth="75.0" text="Sukunimi" />
+            <TableColumn fx:id="yrityksennimiSarake" prefWidth="75.0" text="Yrityksen nimi" />
+            <TableColumn fx:id="ytunnusSarake" prefWidth="75.0" text="Y-tunnus" />
+        </columns>
+      </TableView>
+      <GridPane>
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Asiakas ID" />
+            <TextField fx:id="asiakasIdKentta" GridPane.columnIndex="1" />
+            <Label text="Katuosoite" GridPane.rowIndex="1" />
+            <TextField fx:id="katuosoiteKentta" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Postinumero" GridPane.rowIndex="2" />
+            <TextField fx:id="postinumeroKentta" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Puhelin" GridPane.rowIndex="3" />
+            <TextField fx:id="puhelinKentta" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label text="Email" GridPane.rowIndex="4" />
+            <TextField fx:id="emailKentta" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label text="Etunimi" GridPane.rowIndex="5" />
+            <TextField fx:id="etunimiKentta" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label text="Sukunimi" GridPane.rowIndex="6" />
+            <TextField fx:id="sukunimiKentta" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Label text="Yrityksen nimi" GridPane.rowIndex="7" />
+            <TextField fx:id="yrityksenNimiKentta" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Label text="Y-tunnus" GridPane.rowIndex="8" />
+            <TextField fx:id="yTunnusKentta" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="9">
+               <children>
+                  <Button fx:id="lisaaAsiakasNappi" mnemonicParsing="false" onAction="#lisaaAsiakas" text="Lisää" />
+                  <Button fx:id="muokkaaAsiakasNappi" mnemonicParsing="false" onAction="#muokkaaAsiakas" text="Muokkaa" />
+                  <Button fx:id="poistaAsiakasNappi" mnemonicParsing="false" onAction="#poistaAsiakas" text="Poista" />
+               </children>
+            </HBox>
+         </children>
+      </GridPane>
   </children>
 </VBox>
