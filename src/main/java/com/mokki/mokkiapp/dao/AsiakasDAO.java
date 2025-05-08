@@ -94,8 +94,8 @@ public class AsiakasDAO {
             } else if (asiakas instanceof Yritys yritys) {
                 String ysql = "UPDATE Yritys SET nimi = ?, yhteyshenkilo = ? WHERE asiakas_id = ?";
                 try (PreparedStatement ps2 = conn.prepareStatement(ysql)) {
-                    ps2.setString(1, yritys.getNimi());
-                    ps2.setString(2, yritys.getYhteyshenkilo());
+                    //ps2.setString(1, yritys.getNimi());
+                    //ps2.setString(2, yritys.getYhteyshenkilo());
                     ps2.setInt(3, yritys.getAsiakasId());
                     ps2.executeUpdate();
                 }
