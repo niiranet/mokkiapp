@@ -47,7 +47,6 @@ public class EtusivuController {
         window.show();
     }
 
-
     public void onLaskutusButtonClick(ActionEvent event) throws IOException {
         Parent etusivuParent = FXMLLoader.load(getClass().getResource("laskutus-view.fxml"));
         Scene etusivuScene = new Scene(etusivuParent);
