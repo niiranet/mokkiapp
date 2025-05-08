@@ -2,6 +2,7 @@ package com.mokki.mokkiapp.testaus;
 
 import com.mokki.mokkiapp.dao.*;
 import com.mokki.mokkiapp.model.*;
+import com.mokki.mokkiapp.Varaustiedot;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -66,7 +67,7 @@ public class testDAO {
                     System.out.println(y);
                 }
                 case 6 -> {
-                    List<Varaus> varaukset = varausDAO.haeKaikkiVaraukset();
+                    List<Varaustiedot> varaukset = varausDAO.haeKaikkiVaraukset();
                     varaukset.forEach(System.out::println);
                 }
                 case 7 -> {
@@ -143,25 +144,27 @@ public class testDAO {
         VarausDAO dao = new VarausDAO();
 
         System.out.println("== Kaikki varaukset ==");
-        for (Varaus v : dao.haeKaikkiVaraukset()) {
-            System.out.println("Varaus ID: " + v.getVarausId() + ", Asiakas ID: " + v.getAsiakasId() + ", Alkaa: " + v.getAlku());
+        for (Varaustiedot v : dao.haeKaikkiVaraukset()) {
+            System.out.println("Varaus ID: " + v.getVarausId() + ", Asiakas ID: " + v.getAsiakasId() + ", Alkaa: " + v.getAlkupvm());
         }
 
         System.out.println("== Lisää varaus ==");
-        // JDBC vaatii java.sql.Date
-        // joten localDate -> Date
-        Varaus uusiVaraus = new Varaus(
+        // Käytetään Varaustiedot-luokkaa
+        Varaustiedot uusiVaraus = new Varaustiedot(
                 1112,                                       // varaus_id (valitse uniikki ID)
                 1,                                                  // asiakas_id
                 101,                                                // mokki_id
-                Date.valueOf(LocalDate.of(2024, 10, 1)),   // alkupvm
-                Date.valueOf(LocalDate.of(2025, 10, 5)),   // loppupvm
-                Date.valueOf(LocalDate.now())                                     // varaus_pvm
+                LocalDate.of(2024, 10, 1),                  // alkupvm
+                LocalDate.of(2025, 10, 5),                  // loppupvm
+                LocalDate.now()                                     // varaus_pvm
         );
         dao.lisaaVaraus(uusiVaraus);
 
+        System.out.println("== Kaikki varaukset lisäyksen jälkeen ==");
+        for (Varaustiedot v : dao.haeKaikkiVaraukset()) {
+            System.out.println("Varaus ID: " + v.getVarausId() + ", Asiakas ID: " + v.getAsiakasId() + ", Alkaa: " + v.getAlkupvm());
+        }
     }
-
 
     private static void testaaMokkiDAO() {
         MokkiDAO dao = new MokkiDAO();

@@ -1,5 +1,6 @@
 package com.mokki.mokkiapp;
 
+import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.time.LocalDate;
 import java.time.Month;
 
+import com.mokki.mokkiapp.dao.MokkiDAO;
+import com.mokki.mokkiapp.dao.VarausDAO;
+
 public class MajoitusvarauksetController {
 
     @FXML
@@ -28,7 +32,6 @@ public class MajoitusvarauksetController {
         Parent etusivuParent = FXMLLoader.load(getClass().getResource("etusivu-view.fxml"));
         Scene etusivuScene = new Scene(etusivuParent);
 
-        // Tämä rivi koodia palauttaa Stagen tiedot
         Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
         window.setScene(etusivuScene);
         window.show();
@@ -50,44 +53,66 @@ public class MajoitusvarauksetController {
     private TextField asiakasIdTextField;
 
     @FXML
-    private TableView<Varaustiedot> tableView;
+    private TableView<Varaustiedot> reservationsTableView; // Renamed TableView to reservationsTableView
 
     @FXML
-    private TableColumn<Varaustiedot, LocalDate> alkuColumn;
-
+    private TableColumn<Varaustiedot, LocalDate> alkuColumn; // Muutettu tyyppi Varaustiedot
     @FXML
-    private TableColumn<Varaustiedot, LocalDate> loppuColumn;
-
+    private TableColumn<Varaustiedot, LocalDate> loppuColumn; // Muutettu tyyppi Varaustiedot
     @FXML
-    private TableColumn<Varaustiedot, Integer> varaajaColumn;
+    private TableColumn<Varaustiedot, Integer> varaajaColumn; // Muutettu tyyppi Varaustiedot
 
     @FXML
     private Button VaraaMokkiButton;
 
+    private MokkiDAO mokkiDAO;
+    private VarausDAO varausDAO;
+
     @FXML
     public void initialize() {
-        // Tähän tulee myöhemmin initialisointikoodia (esim. ComboBoxien täyttö)
-        // ilman tietokantayhteyttä, voimme alustaa ne kovakoodatuilla arvoilla
-        cottageComboBox.getItems().addAll(101, 102, 103);
-        monthComboBox.getItems().addAll(Month.JANUARY.name(), Month.FEBRUARY.name(), Month.MARCH.name(),
-                Month.APRIL.name(), Month.MAY.name(), Month.JUNE.name(), Month.JULY.name(),
-                Month.AUGUST.name(), Month.SEPTEMBER.name(), Month.OCTOBER.name(),
-                Month.NOVEMBER.name(), Month.DECEMBER.name());
+        System.out.println("MajoitusvarauksetController initialized.");
+        mokkiDAO = new MokkiDAO();
+        varausDAO = new VarausDAO();
 
-        // Asetetaan oletusarvot
-        cottageComboBox.setValue(101);
-        monthComboBox.setValue(Month.JANUARY.name());
+        // Populate cottage ComboBox from the database
+        try {
+            System.out.println("Calling mokkiDAO.haeKaikkiMokkiIdt()");
+            List<Integer> mokkiIds = mokkiDAO.haeKaikkiMokkiIdt();
+            if (mokkiIds != null) {
+                System.out.println("Fetched cottage IDs: " + mokkiIds);
+            } else {
+                System.out.println("Failed to fetch cottage IDs - mokkiIds is null.");
+            }
+            ObservableList<Integer> cottageIdsObservableList = FXCollections.observableArrayList(mokkiIds);
+            System.out.println("Creating ObservableList with: " + mokkiIds);
+            cottageComboBox.setItems(cottageIdsObservableList);
+            System.out.println("Setting cottageComboBox items to: " + cottageIdsObservableList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error fetching cottage IDs: " + e.getMessage());
+        }
 
-        // Initialisoidaan taulukon sarakkeet (ilman dataa vielä)
+        monthComboBox.getItems().addAll("Tammikuu", "Helmikuu", "Maaliskuu",
+                "Huhtikuu", "Toukokuu", "Kesäkuu", "Heinäkuu",
+                "Elokuu", "Syyskuu", "Lokakuu",
+                "Marraskuu", "Joulukuu");
+
+        monthComboBox.setValue("Tammikuu"); // Muutettu oletusarvo vastaamaan switch-lausetta
+
         alkuColumn.setCellValueFactory(new PropertyValueFactory<>("alkupvm"));
         loppuColumn.setCellValueFactory(new PropertyValueFactory<>("loppupvm"));
         varaajaColumn.setCellValueFactory(new PropertyValueFactory<>("asiakasId"));
 
-        // Alustetaan tyhjä ObservableList taulukkoa varten
-        ObservableList<Varaustiedot> tyhjatVaraukset = FXCollections.observableArrayList();
-        tableView.setItems(tyhjatVaraukset);
-    }
+        reservationsTableView.setItems(FXCollections.observableArrayList());
 
+        cottageComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateReservationsTable();
+        });
+
+        monthComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateReservationsTable();
+        });
+    }
     @FXML
     private void handleVaraaMokkiButtonClick(ActionEvent event) {
         // Tähän tulee myöhemmin varauslogiikka
@@ -110,18 +135,41 @@ public class MajoitusvarauksetController {
     }
 
     @FXML
-    private void filterReservationsByMonth() {
-        // Tähän tulee myöhemmin suodatuslogiikka
-        if (monthComboBox.getValue() != null) {
-            System.out.println("Valittu kuukausi: " + monthComboBox.getValue() + " (ei vielä suodatusta).");
+    private void updateReservationsTable() {
+        Integer selectedCottageId = cottageComboBox.getValue();
+        String selectedMonth = monthComboBox.getValue();
+
+        if (selectedCottageId != null && selectedMonth != null) {
+            int monthNumber = getMonthNumber(selectedMonth);
+            try {
+                ObservableList<Varaustiedot> reservations = FXCollections.observableArrayList(
+                        varausDAO.getReservationsByCottageAndMonth(selectedCottageId, monthNumber)
+                );
+                reservationsTableView.setItems(reservations);
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Handle potential database errors
+            }
+        } else {
+            reservationsTableView.setItems(FXCollections.observableArrayList());
         }
     }
 
-    @FXML
-    private void refreshReservations() {
-        // Tähän tulee myöhemmin varauslistan päivityslogiikka
-        if (cottageComboBox.getValue() != null) {
-            System.out.println("Päivitetään varauksia mökille: " + cottageComboBox.getValue() + " (ei vielä tietokantayhteyttä).");
-        }
+    private int getMonthNumber(String monthName) {
+        return switch (monthName) {
+            case "Tammikuu" -> 1;
+            case "Helmikuu" -> 2;
+            case "Maaliskuu" -> 3;
+            case "Huhtikuu" -> 4;
+            case "Toukokuu" -> 5;
+            case "Kesäkuu" -> 6;
+            case "Heinäkuu" -> 7;
+            case "Elokuu" -> 8;
+            case "Syyskuu" -> 9;
+            case "Lokakuu" -> 10;
+            case "Marraskuu" -> 11;
+            case "Joulukuu" -> 12;
+            default -> -1; // Handle invalid month name
+        };
     }
 }
