@@ -223,7 +223,7 @@
                 </TableView>
                 <HBox layoutX="296.0" layoutY="85.0" prefHeight="100.0" prefWidth="200.0">
                     <children>
-                        <TextField promptText="Hae asiakas" />
+                        <TextField fx:id="searchTextField" promptText="Hae asiakas" />
                     </children>
                 </HBox>
 

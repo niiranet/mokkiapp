@@ -30,6 +30,8 @@ import com.mokki.mokkiapp.dao.VarausDAO;
 import com.mokki.mokkiapp.model.Yksityishenkilo;
 import com.mokki.mokkiapp.model.Yritys;
 import com.mokki.mokkiapp.model.Mokki;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 
 public class MajoitusvarauksetController {
 
@@ -45,7 +47,7 @@ public class MajoitusvarauksetController {
     @FXML private ComboBox<String> monthComboBox;
     @FXML private DatePicker alkupvmDatePicker;
     @FXML private DatePicker loppupvmDatePicker;
-    @FXML private TextField asiakasIdTextField;
+    @FXML private TextField searchTextField;
     @FXML private TableView<Object> asiakasTableView;
     @FXML private TableColumn<Object, Integer> asiakasIdColumn;
     @FXML private TableColumn<Object, String> katuosoiteColumn;
@@ -62,6 +64,8 @@ public class MajoitusvarauksetController {
     private MokkiDAO mokkiDAO;
     private VarausDAO varausDAO;
     private AsiakasDAO asiakasDAO;
+
+    private ObservableList<Object> asiakkaat; // Keep a reference to the original list
 
     @FXML public void initialize() {
         System.out.println("MajoitusvarauksetController initialized.");
@@ -113,31 +117,43 @@ public class MajoitusvarauksetController {
             updateReservationsTable(selectedCottage == null ? -1 : selectedCottage.getMokkiId(), newValue);
         });
 
-        asiakasTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                int asiakasId = -1;
-                if (newValue instanceof Yksityishenkilo) {
-                    asiakasId = ((Yksityishenkilo) newValue).getAsiakasId();
-                } else if (newValue instanceof Yritys) {
-                    asiakasId = ((Yritys) newValue).getAsiakasId();
-                }
-                if (asiakasId != -1) {
-                    haeJaNaytaAsiakkaanVaraukset(asiakasId);
-                }
-            } else {
-                reservationsTableView.setItems(FXCollections.observableArrayList());
-            }
-        });
-        naytaAsiakkaat();
-    }
-
-    private void naytaAsiakkaat() {
-        ObservableList<Object> asiakkaat = FXCollections.observableArrayList();
+        asiakkaat = FXCollections.observableArrayList();
         List<Yksityishenkilo> yksityishenkilot = haeKaikkiYksityishenkilot();
         List<Yritys> yritykset = haeKaikkiYritykset();
         if (yksityishenkilot != null) asiakkaat.addAll(yksityishenkilot);
         if (yritykset != null) asiakkaat.addAll(yritykset);
-        asiakasTableView.setItems(asiakkaat);
+
+        FilteredList<Object> filteredAsiakkaat = new FilteredList<>(asiakkaat, p -> true); // Initially show all
+
+        searchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredAsiakkaat.setPredicate(asiakas -> {
+                // If search field is empty, display all customers.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare search text with different fields of each customer (case-insensitive).
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (asiakas instanceof Yksityishenkilo) {
+                    Yksityishenkilo yksityishenkilo = (Yksityishenkilo) asiakas;
+                    if (yksityishenkilo.getEtunimi().toLowerCase().contains(lowerCaseFilter)) return true;
+                    if (yksityishenkilo.getSukunimi().toLowerCase().contains(lowerCaseFilter)) return true;
+                    if (yksityishenkilo.getPuhelin().contains(newValue)) return true;
+                } else if (asiakas instanceof Yritys) {
+                    Yritys yritys = (Yritys) asiakas;
+                    if (yritys.getYrityksenNimi().toLowerCase().contains(lowerCaseFilter)) return true;
+                    if (yritys.getPuhelin().contains(newValue)) return true;
+                }
+                return false; // Does not match.
+            });
+            asiakasTableView.setItems(filteredAsiakkaat);
+        });
+
+        SortedList<Object> sortedAsiakkaat = new SortedList<>(filteredAsiakkaat);
+        sortedAsiakkaat.comparatorProperty().bind(asiakasTableView.comparatorProperty());
+        asiakasTableView.setItems(sortedAsiakkaat); // Use the sorted list for the table
+
         asiakasIdColumn.setCellValueFactory(cellData -> {
             Object asiakas = cellData.getValue();
             if (asiakas instanceof Yksityishenkilo) return new SimpleIntegerProperty(((Yksityishenkilo) asiakas).getAsiakasId()).asObject();
@@ -206,8 +222,9 @@ public class MajoitusvarauksetController {
         if (cottageComboBox.getValue() != null) System.out.println("Valittu mökki: " + cottageComboBox.getValue());
         if (alkupvmDatePicker.getValue() != null) System.out.println("Alkupvm: " + alkupvmDatePicker.getValue());
         if (loppupvmDatePicker.getValue() != null) System.out.println("Loppupvm: " + loppupvmDatePicker.getValue());
+        /*
         if (asiakasIdTextField.getText() != null && !asiakasIdTextField.getText().isEmpty()) System.out.println("Asiakas ID: " + asiakasIdTextField.getText());
-        else System.out.println("Asiakas ID ei ole syötetty.");
+        else System.out.println("Asiakas ID ei ole syötetty.");*/
     }
 
     @FXML
