@@ -192,7 +192,7 @@
 
                 </TableView>
 
-                <Button fx:id="VaraaMokkiButton" layoutX="108.0" layoutY="566.0" mnemonicParsing="false" text="Varaa">
+                <Button fx:id="VaraaMokkiButton" layoutX="108.0" layoutY="566.0" mnemonicParsing="false" text="Varaa" onAction="#handleVaraaMokkiButtonClick">
 
                     <font>
 

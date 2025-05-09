@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -66,6 +67,7 @@ public class MajoitusvarauksetController {
     private AsiakasDAO asiakasDAO;
 
     private ObservableList<Object> asiakkaat; // Keep a reference to the original list
+    private Object selectedAsiakas; // To store the selected customer
 
     @FXML public void initialize() {
         System.out.println("MajoitusvarauksetController initialized.");
@@ -154,6 +156,51 @@ public class MajoitusvarauksetController {
         sortedAsiakkaat.comparatorProperty().bind(asiakasTableView.comparatorProperty());
         asiakasTableView.setItems(sortedAsiakkaat); // Use the sorted list for the table
 
+        asiakasTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedAsiakas = newValue; // Store the newly selected customer
+            System.out.println("Valittu asiakas:"); // Lisätään tulostus
+            if (newValue instanceof Yksityishenkilo) {
+                Yksityishenkilo yksityishenkilo = (Yksityishenkilo) newValue;
+                System.out.println("  Tyyppi: Yksityishenkilö");
+                System.out.println("  ID: " + yksityishenkilo.getAsiakasId());
+                System.out.println("  Nimi: " + yksityishenkilo.getEtunimi() + " " + yksityishenkilo.getSukunimi());
+                System.out.println("  Puhelin: " + yksityishenkilo.getPuhelin());
+            } else if (newValue instanceof Yritys) {
+                Yritys yritys = (Yritys) newValue;
+                System.out.println("  Tyyppi: Yritys");
+                System.out.println("  ID: " + yritys.getAsiakasId());
+                System.out.println("  Nimi: " + yritys.getYrityksenNimi());
+                System.out.println("  Y-tunnus: " + yritys.getYtunnus());
+                System.out.println("  Puhelin: " + yritys.getPuhelin());
+            } else {
+                System.out.println("  Ei valittu asiakasta.");
+            }
+
+            if (newValue != null) {
+                int asiakasId = -1;
+                if (newValue instanceof Yksityishenkilo) {
+                    asiakasId = ((Yksityishenkilo) newValue).getAsiakasId();
+                } else if (newValue instanceof Yritys) {
+                    asiakasId = ((Yritys) newValue).getAsiakasId();
+                }
+                if (asiakasId != -1) {
+                    haeJaNaytaAsiakkaanVaraukset(asiakasId);
+                }
+            } else {
+                reservationsTableView.setItems(FXCollections.observableArrayList());
+                selectedAsiakas = null; // Clear the selected customer if nothing is selected
+            }
+        });
+        naytaAsiakkaat();
+    }
+
+    private void naytaAsiakkaat() {
+        ObservableList<Object> asiakkaat = FXCollections.observableArrayList();
+        List<Yksityishenkilo> yksityishenkilot = haeKaikkiYksityishenkilot();
+        List<Yritys> yritykset = haeKaikkiYritykset();
+        if (yksityishenkilot != null) asiakkaat.addAll(yksityishenkilot);
+        if (yritykset != null) asiakkaat.addAll(yritykset);
+        asiakasTableView.setItems(asiakkaat);
         asiakasIdColumn.setCellValueFactory(cellData -> {
             Object asiakas = cellData.getValue();
             if (asiakas instanceof Yksityishenkilo) return new SimpleIntegerProperty(((Yksityishenkilo) asiakas).getAsiakasId()).asObject();
@@ -219,12 +266,64 @@ public class MajoitusvarauksetController {
 
     @FXML
     private void handleVaraaMokkiButtonClick(ActionEvent event) {
-        if (cottageComboBox.getValue() != null) System.out.println("Valittu mökki: " + cottageComboBox.getValue());
-        if (alkupvmDatePicker.getValue() != null) System.out.println("Alkupvm: " + alkupvmDatePicker.getValue());
-        if (loppupvmDatePicker.getValue() != null) System.out.println("Loppupvm: " + loppupvmDatePicker.getValue());
-        /*
-        if (asiakasIdTextField.getText() != null && !asiakasIdTextField.getText().isEmpty()) System.out.println("Asiakas ID: " + asiakasIdTextField.getText());
-        else System.out.println("Asiakas ID ei ole syötetty.");*/
+        Mokki selectedCottage = cottageComboBox.getValue();
+        LocalDate alkupvm = alkupvmDatePicker.getValue();
+        LocalDate loppupvm = loppupvmDatePicker.getValue();
+        int asiakasId = -1;
+
+        if (selectedAsiakas instanceof Yksityishenkilo) {
+            asiakasId = ((Yksityishenkilo) selectedAsiakas).getAsiakasId();
+        } else if (selectedAsiakas instanceof Yritys) {
+            asiakasId = ((Yritys) selectedAsiakas).getAsiakasId();
+        }
+
+        if (selectedCottage != null && alkupvm != null && loppupvm != null && asiakasId != -1) {
+            // Luo uusi Varaustiedot-objekti
+            Varaustiedot uusiVaraus = new Varaustiedot(
+                    -1, // Varaus ID luodaan automaattisesti tietokannassa
+                    asiakasId,
+                    selectedCottage.getMokkiId(),
+                    alkupvm,
+                    loppupvm,
+                    LocalDate.now() // Aseta varauspäivämääräksi nykyinen päivä
+            );
+
+            // Tallenna uusi varaus tietokantaan
+            try {
+                varausDAO.lisaaVaraus(uusiVaraus);
+                // Päivitä varausnäkymä
+                updateReservationsTable(selectedCottage.getMokkiId(), monthComboBox.getValue());
+                // Näytä onnistumisviesti
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Varaus onnistui");
+                alert.setHeaderText(null);
+                alert.setContentText("Uusi varaus on luotu onnistuneesti!");
+                alert.showAndWait();
+
+                // Tyhjennä kentät onnistuneen varauksen jälkeen (valinnaista)
+                cottageComboBox.setValue(null);
+                alkupvmDatePicker.setValue(null);
+                loppupvmDatePicker.setValue(null);
+                asiakasTableView.getSelectionModel().clearSelection();
+                selectedAsiakas = null;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Näytä virheviesti
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Varaus epäonnistui");
+                alert.setHeaderText("Varauksen luomisessa tapahtui virhe.");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+            }
+        } else {
+            // Näytä varoitusviesti, jos kaikki tiedot eivät ole valittuna
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Puuttuvia tietoja");
+            alert.setHeaderText(null);
+            alert.setContentText("Ole hyvä ja valitse mökki, alkupäivämäärä, loppupäivämäärä ja asiakas.");
+            alert.showAndWait();
+        }
     }
 
     @FXML

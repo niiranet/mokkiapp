@@ -34,18 +34,22 @@ public class VarausDAO {
     }
 
     public void lisaaVaraus(Varaustiedot varaus) {
-        String sql = "INSERT INTO Varaus (varaus_id, asiakas_id, mokki_id, alkupvm, loppupvm, varaus_pvm) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        // SQL-kysely uuden varauksen lisäämiseksi.
+        // Huomaa, että 'varaus_id'-kenttää ei mainita lisättävissä sarakkeissa.
+        // Tämä johtuu siitä, että 'varaus_id' on tietokannassa määritelty
+        // automaattisesti kasvavaksi (SERIAL), joten tietokanta luo sille
+        // uuden yksilöllisen arvon automaattisesti.
+        String sql = "INSERT INTO Varaus (asiakas_id, mokki_id, alkupvm, loppupvm, varaus_pvm) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, varaus.getVarausId());
-            ps.setInt(2, varaus.getAsiakasId());
-            ps.setInt(3, varaus.getMokkiId());
-            ps.setDate(4, Date.valueOf(varaus.getAlkupvm()));
-            ps.setDate(5, Date.valueOf(varaus.getLoppupvm()));
-            ps.setDate(6, Date.valueOf(varaus.getVarausPvm()));
+            ps.setInt(1, varaus.getAsiakasId());
+            ps.setInt(2, varaus.getMokkiId());
+            ps.setDate(3, Date.valueOf(varaus.getAlkupvm()));
+            ps.setDate(4, Date.valueOf(varaus.getLoppupvm()));
+            ps.setDate(5, Date.valueOf(varaus.getVarausPvm()));
 
             ps.executeUpdate();
 
