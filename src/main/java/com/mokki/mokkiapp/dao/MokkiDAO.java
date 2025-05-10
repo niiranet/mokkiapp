@@ -13,7 +13,7 @@ public class MokkiDAO {
 
     public List<Integer> haeKaikkiMokkiIdt() {
         List<Integer> mokkiIds = new ArrayList<>();
-        String sql = "SELECT mokki_id FROM mökki";
+        String sql = "SELECT mokki_id FROM Mökki";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -29,7 +29,7 @@ public class MokkiDAO {
     public List<Mokki> haeKaikkiMokitNimella() {
         List<Mokki> mokit = new ArrayList<>();
         String sql = "SELECT m.mokki_id, m.nimi, m.katuosoite, m.hinta, m.kuvaus, m.postinumero, p.kunta, p.maa " +
-                "FROM mökki m JOIN Postialue p ON m.postinumero = p.postinumero"; // KORJATTU JOIN-LAUSE
+                "FROM Mökki m JOIN Postialue p ON m.postinumero = p.postinumero"; // KORJATTU JOIN-LAUSE
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -57,7 +57,7 @@ public class MokkiDAO {
 
     public Mokki haeMokki(int mokkiId) {
         String sql = "SELECT m.mokki_id, m.nimi, m.katuosoite, m.hinta, m.kuvaus, m.postinumero, p.kunta, p.maa " +
-                "FROM mökki m JOIN Postialue p ON m.postinumero = p.postinumero " + // KORJATTU JOIN-LAUSE
+                "FROM Mökki m JOIN Postialue p ON m.postinumero = p.postinumero " + // KORJATTU JOIN-LAUSE
                 "WHERE m.mokki_id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

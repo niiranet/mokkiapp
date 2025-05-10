@@ -7,6 +7,9 @@ import java.sql.*;
 import java.util.*;
 
 
+/**
+ * Kaikki laskujen käsittelyihin liittyvät metodit
+ */
 public class LaskuDAO {
 
     public List<Lasku> haeMaksetutLaskut() {
@@ -17,6 +20,11 @@ public class LaskuDAO {
         return haeLaskut(false);
     }
 
+    /**
+     * hae lista joko maksetusta tai maksamattomasta laskusta
+     * @param maksettu
+     * @return
+     */
     private List<Lasku> haeLaskut(boolean maksettu) {
         List<Lasku> lista = new ArrayList<>();
         String sql = "SELECT * FROM Lasku WHERE maksettu = ?";
@@ -42,6 +50,11 @@ public class LaskuDAO {
         return lista;
     }
 
+
+    /**
+     * merkitse lasku maksetuksi
+     * @param laskuId
+     */
     public void merkitseMaksetuksi(int laskuId) {
         String sql = "UPDATE Lasku SET maksettu = TRUE, maksupvm = CURRENT_DATE WHERE lasku_id = ?";
         try (Connection conn = Database.getConnection();
