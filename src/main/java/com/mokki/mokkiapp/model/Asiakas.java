@@ -25,15 +25,12 @@ public abstract class Asiakas {
     public void setKatuosoite(String katuosoite) {
         this.katuosoite = katuosoite;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public void setPuhelin(String puhelin) {
         this.puhelin = puhelin;
     }
-
     public void setPostialue(Postialue postialue) {
         this.postialue = postialue;
     }

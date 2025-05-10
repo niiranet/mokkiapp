@@ -1,5 +1,6 @@
 package com.mokki.mokkiapp.dao;
 
+import com.mokki.mokkiapp.Varaustiedot;
 import com.mokki.mokkiapp.model.*;
 import com.mokki.mokkiapp.database.Database;
 
@@ -8,6 +9,90 @@ import java.util.*;
 
 
 public class AsiakasDAO {
+
+    /**
+     * Testausta...
+     * @param args
+     */
+    public static void main(String[] args) {
+        AsiakasDAO dao = new AsiakasDAO();
+
+        Postialue postialue1 = new Postialue("00100", "Helsinki", "Suomi");
+        Yksityishenkilo paivitettyYksityinen = new Yksityishenkilo(
+                1, "Päivitettykatu 10", "uusi@email.com", "0401234567", postialue1,
+                "Maija", "Mallikas"
+        );
+        dao.paivitaAsiakasTiedot(paivitettyYksityinen);
+
+
+        Postialue postialue2 = new Postialue("20100", "Turku", "Suomi");
+        Yritys paivitettyYritys = new Yritys(
+                2, "Yrityskatu 55", "firma@firma.fi", "020112233", postialue2,
+                "Uusi Oy", "1234567-8"
+        );
+        dao.paivitaAsiakasTiedot(paivitettyYritys);
+
+        // OK
+
+    }
+
+
+    /**
+     * Yhteinen hakumetodi molemmille asiakastyypeille
+     * @param asiakasId
+     * @return asiakasolio
+     */
+    public Asiakas haeAsiakas(int asiakasId) {
+        String sql = """
+        SELECT * FROM Asiakas
+        LEFT JOIN Yksityishenkilo USING(asiakas_id)
+        LEFT JOIN Yritys USING(asiakas_id)
+        JOIN Postialue USING(postinumero)
+        WHERE asiakas_id = ?
+        """;
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, asiakasId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Postialue pa = new Postialue(
+                        rs.getString("postinumero"),
+                        rs.getString("kunta"),
+                        rs.getString("maa"));
+
+                if (rs.getString("etunimi") != null) {
+                    // Yksityishenkilö
+                    return new Yksityishenkilo(
+                            rs.getInt("asiakas_id"),
+                            rs.getString("katuosoite"),
+                            rs.getString("email"),
+                            rs.getString("puhelin"),
+                            pa,
+                            rs.getString("etunimi"),
+                            rs.getString("sukunimi")
+                    );
+                } else if (rs.getString("yrityksen_nimi") != null) {
+                    // Yritys
+                    return new Yritys(
+                            rs.getInt("asiakas_id"),
+                            rs.getString("katuosoite"),
+                            rs.getString("email"),
+                            rs.getString("puhelin"),
+                            pa,
+                            rs.getString("yrityksen_nimi"),
+                            rs.getString("y_tunnus")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public Yksityishenkilo haeYksityishenkilo(int asiakasId) {
         String sql =
@@ -39,6 +124,7 @@ public class AsiakasDAO {
         return null;
     }
 
+
     public Yritys haeYritys(int asiakasId) {
         String sql =
                 "SELECT * FROM Asiakas " +
@@ -69,6 +155,7 @@ public class AsiakasDAO {
         return null;
     }
 
+
     public List<Yksityishenkilo> haeKaikkiYksityishenkilot() {
         List<Yksityishenkilo> yksityishenkilot = new ArrayList<>();
         String sql = "SELECT * FROM Asiakas JOIN Yksityishenkilo USING(asiakas_id) JOIN Postialue USING(postinumero)";
@@ -95,6 +182,7 @@ public class AsiakasDAO {
         }
         return yksityishenkilot;
     }
+
 
     public List<Yritys> haeKaikkiYritykset() {
         List<Yritys> yritykset = new ArrayList<>();
@@ -123,7 +211,11 @@ public class AsiakasDAO {
         return yritykset;
     }
 
-    /*
+
+    /**
+     * Päivittää asiakkaden tiedot muutettujen kenttien perusteella
+     * @param asiakas Asiakasolio
+     */
     public void paivitaAsiakasTiedot(Asiakas asiakas) {
         String sql = "UPDATE Asiakas SET katuosoite = ?, postinumero = ?, email = ?, puhelin = ? WHERE asiakas_id = ?";
 
@@ -145,11 +237,12 @@ public class AsiakasDAO {
                     ps2.setInt(3, yksityinen.getAsiakasId());
                     ps2.executeUpdate();
                 }
-            } else if (asiakas instanceof Yritys yritys) {
-                String ysql = "UPDATE Yritys SET nimi = ?, yhteyshenkilo = ? WHERE asiakas_id = ?";
+            }
+            else if (asiakas instanceof Yritys yritys) {
+                String ysql = "UPDATE Yritys SET yrityksen_nimi = ?, y_tunnus = ? WHERE asiakas_id = ?";
                 try (PreparedStatement ps2 = conn.prepareStatement(ysql)) {
-                    //ps2.setString(1, yritys.getNimi());
-                    //ps2.setString(2, yritys.getYhteyshenkilo());
+                    ps2.setString(1, yritys.getYrityksenNimi());
+                    ps2.setString(2, yritys.getYtunnus());
                     ps2.setInt(3, yritys.getAsiakasId());
                     ps2.executeUpdate();
                 }
@@ -160,7 +253,9 @@ public class AsiakasDAO {
         }
     }
 
-    */
+
+
+
 
 }
 
