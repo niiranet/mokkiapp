@@ -66,4 +66,15 @@ public class LaskuDAO {
         }
     }
 
+    public void merkitseMaksamattomaksi(int laskuId) {
+        String sql = "UPDATE Lasku SET maksettu = FALSE, maksupvm = NULL WHERE lasku_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, laskuId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
