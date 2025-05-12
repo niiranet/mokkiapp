@@ -13,7 +13,7 @@ public class MiscDAO {
 
     /**
      * Tarkista onko postialue olemassa,
-     * jos on niin lisää uusi postialue.
+     * jos ei ole niin lisää uusi postialue.
      * @param postialue
      */
     public static void lisaaPostialue(Postialue postialue) {
