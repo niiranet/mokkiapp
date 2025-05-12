@@ -9,6 +9,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
+
+import com.mokki.mokkiapp.model.Asiakas; // Lisää tämä rivi
+import com.mokki.mokkiapp.model.Lasku;   // Lisää tämä rivi
+import com.mokki.mokkiapp.dao.LaskuDAO;     // Lisää tämä rivi
+import java.sql.SQLException;            // Lisää tämä rivi, jos et ole jo importoinut
+import java.math.BigDecimal;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -290,29 +297,82 @@ public class MajoitusvarauksetController {
 
             // Tallenna uusi varaus tietokantaan
             try {
-                varausDAO.lisaaVaraus(uusiVaraus);
-                // Päivitä varausnäkymä
-                updateReservationsTable(selectedCottage.getMokkiId(), monthComboBox.getValue());
-                // Näytä onnistumisviesti
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Varaus onnistui");
-                alert.setHeaderText(null);
-                alert.setContentText("Uusi varaus on luotu onnistuneesti!");
-                alert.showAndWait();
+                int varausId = varausDAO.lisaaVaraus(uusiVaraus); // Nyt lisaaVaraus palauttaa luodun ID:n
+                System.out.println("Luotu varaus ID: " + varausId); // Lisätty tulostuslauseke
 
-                // Tyhjennä kentät onnistuneen varauksen jälkeen (valinnaista)
-                cottageComboBox.setValue(null);
-                alkupvmDatePicker.setValue(null);
-                loppupvmDatePicker.setValue(null);
-                asiakasTableView.getSelectionModel().clearSelection();
-                selectedAsiakas = null;
+                // Hae asiakkaan ID juuri luodusta varauksesta
+                int laskunAsiakasId = varausDAO.haeAsiakasIdVaraukselta(varausId);
+                Asiakas laskunAsiakas = asiakasDAO.haeAsiakas(laskunAsiakasId);
 
-            } catch (Exception e) {
+                if (laskunAsiakas != null) {
+                    // Luo uusi lasku
+                    Lasku uusiLasku = new Lasku();
+                    uusiLasku.setAsiakas(laskunAsiakas);
+                    uusiLasku.setVarausId(varausId);
+                    uusiLasku.setLuontipvm(LocalDate.now());
+
+                    // Hae mökin hinta
+                    BigDecimal mokinHinta = selectedCottage.getHinta(); // Oletetaan getHinta()-metodi
+
+                    // Laske varauksen kesto päivinä
+                    long varausKestoPaivina = java.time.temporal.ChronoUnit.DAYS.between(alkupvm, loppupvm);
+                    BigDecimal kestoBigDecimal = new BigDecimal(varausKestoPaivina);
+
+                    // Laske kokonaissumma
+                    BigDecimal kokonaissumma = mokinHinta.multiply(kestoBigDecimal);
+                    uusiLasku.setSumma(kokonaissumma);
+
+                    // Aseta eräpäivä (esimerkiksi 14 päivää varauksesta)
+                    LocalDate erapaiva = LocalDate.now().plusDays(14);
+                    uusiLasku.setErapaiva(java.sql.Date.valueOf(erapaiva));
+
+                    // Aseta tilinumero
+                    uusiLasku.setTilinro("FI1234567890123456");
+                    uusiLasku.setMaksettu(false);
+
+                    // Tallenna uusi lasku tietokantaan
+                    LaskuDAO laskuDAO = new LaskuDAO();
+                    laskuDAO.lisaaLasku(uusiLasku);
+
+                    // Päivitä varausnäkymä
+                    updateReservationsTable(selectedCottage.getMokkiId(), monthComboBox.getValue());
+                    // Näytä onnistumisviesti
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Varaus ja lasku onnistui");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Uusi varaus ja lasku on luotu onnistuneesti!");
+                    alert.showAndWait();
+
+                    // Tyhjennä kentät onnistuneen varauksen jälkeen (valinnaista)
+                    cottageComboBox.setValue(null);
+                    alkupvmDatePicker.setValue(null);
+                    loppupvmDatePicker.setValue(null);
+                    asiakasTableView.getSelectionModel().clearSelection();
+                    selectedAsiakas = null;
+
+                } else {
+                    // Jos asiakasta ei löydy varaus-ID:llä, näytä virhe
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Virhe");
+                    alert.setHeaderText("Asiakasta ei löytynyt luodulle varaukselle.");
+                    alert.setContentText("Laskun luominen epäonnistui, koska asiakastietoja ei voitu hakea.");
+                    alert.showAndWait();
+                }
+
+            } catch (SQLException e) {
                 e.printStackTrace();
-                // Näytä virheviesti
+                // Näytä virheviesti varauksen luonnin epäonnistuessa
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Varaus epäonnistui");
                 alert.setHeaderText("Varauksen luomisessa tapahtui virhe.");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Näytä yleinen virheviesti, jos jokin muu menee pieleen
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Virhe");
+                alert.setHeaderText("Tapahtui odottamaton virhe.");
                 alert.setContentText(e.getMessage());
                 alert.showAndWait();
             }
@@ -325,7 +385,6 @@ public class MajoitusvarauksetController {
             alert.showAndWait();
         }
     }
-
     @FXML
     private void updateReservationsTable(int mokkiId, String selectedMonth) {
         if (selectedMonth != null) {

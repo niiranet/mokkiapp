@@ -4,7 +4,7 @@ import com.mokki.mokkiapp.dao.*;
 import com.mokki.mokkiapp.model.*;
 import com.mokki.mokkiapp.Varaustiedot;
 
-import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
@@ -47,21 +47,18 @@ public class testDAO {
                 }
                 case 3 -> {
                     System.out.print("Anna laskun ID: ");
-
                     int laskuId = Integer.parseInt(scanner.nextLine());
                     laskuDAO.merkitseMaksetuksi(laskuId);
                     System.out.println("Lasku " + laskuId + " merkitty maksetuksi.");
                 }
                 case 4 -> {
                     System.out.print("Anna asiakas ID (yksityinen): ");
-
                     int id = Integer.parseInt(scanner.nextLine());
                     Yksityishenkilo y = asiakasDAO.haeYksityishenkilo(id);
                     System.out.println(y);
                 }
                 case 5 -> {
                     System.out.print("Anna asiakas ID (yritys): ");
-
                     int id = Integer.parseInt(scanner.nextLine());
                     Yritys y = asiakasDAO.haeYritys(id);
                     System.out.println(y);
@@ -77,19 +74,22 @@ public class testDAO {
                     System.out.println(m);
                 }
                 case 11 -> {
-                    // LaskuDAO
-                    testaaLaskuDAO();
+                    try {
+                        // LaskuDAO
+                        testaaLaskuDAO();
 
-                    // AsiakasDAO
-                    testaaAsiakasDAO(1);
-                    testaaYritysDAO(2);
+                        // AsiakasDAO
+                        testaaAsiakasDAO(1);
+                        testaaYritysDAO(2);
 
-                    // MokkiDAO
-                    testaaMokkiDAO();
+                        // MokkiDAO
+                        testaaMokkiDAO();
 
-                    // VarausDAO
-                    testaaVarausDAO();
-
+                        // VarausDAO
+                        testaaVarausDAO();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
                 case 0 -> {
                     System.out.println("Ohjelma sulkeutuu.");
@@ -101,13 +101,10 @@ public class testDAO {
         }
     }
 
-
-
-    private static void testaaLaskuDAO() {
+    private static void testaaLaskuDAO() throws SQLException {
         LaskuDAO dao = new LaskuDAO();
 
         System.out.println("== Maksamattomat laskut ==");
-
         List<Lasku> maksamattomat = dao.haeMaksamattomatLaskut();
         for (Lasku l : maksamattomat) {
             System.out.println("Lasku ID: " + l.getLaskuId() + ", Summa: " + l.getSumma() + ", Maksettu: " + l.isMaksettu());
@@ -120,8 +117,7 @@ public class testDAO {
         }
     }
 
-
-    private static void testaaAsiakasDAO(int id) {
+    private static void testaaAsiakasDAO(int id) throws SQLException {
         AsiakasDAO dao = new AsiakasDAO();
 
         System.out.println("== Haetaan yksityishenkilö ID:llä " + id + " ==");
@@ -130,7 +126,7 @@ public class testDAO {
             System.out.println(y.getEtunimi() + " " + y.getSukunimi() + " (" + y.getEmail() + ")");
     }
 
-    private static void testaaYritysDAO(int id) {
+    private static void testaaYritysDAO(int id) throws SQLException {
         AsiakasDAO dao = new AsiakasDAO();
 
         System.out.println("== Haetaan yritys ID:llä " + id + " ==");
@@ -139,8 +135,7 @@ public class testDAO {
             System.out.println(yritys.getYrityksenNimi() + " (" + yritys.getYtunnus() + ")");
     }
 
-
-    private static void testaaVarausDAO() {
+    private static void testaaVarausDAO() throws SQLException {
         VarausDAO dao = new VarausDAO();
 
         System.out.println("== Kaikki varaukset ==");
@@ -166,7 +161,7 @@ public class testDAO {
         }
     }
 
-    private static void testaaMokkiDAO() {
+    private static void testaaMokkiDAO() throws SQLException {
         MokkiDAO dao = new MokkiDAO();
 
         System.out.println("== Haetaan mökki ID:llä 1 ==");
@@ -174,7 +169,4 @@ public class testDAO {
         if (m != null)
             System.out.println(m.getNimi() + ", " + m.getKatuosoite() + " (" + m.getHinta() + " €/yö)");
     }
-
-
-
 }

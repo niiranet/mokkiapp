@@ -71,7 +71,6 @@ public class AsiakasDAO {
     }
 
 
-
     /**
      * Yhteinen hakumetodi molemmille asiakastyypeille
      * @param asiakasId
@@ -264,21 +263,21 @@ public class AsiakasDAO {
             ps.setInt(5, asiakas.getAsiakasId());
             ps.executeUpdate();
 
-            if (asiakas instanceof Yksityishenkilo yksityinen) {
+            if (asiakas instanceof Yksityishenkilo paivitettyYksityinen) { // Korjattu muuttujan nimi
                 String ysql = "UPDATE Yksityishenkilo SET etunimi = ?, sukunimi = ? WHERE asiakas_id = ?";
                 try (PreparedStatement ps2 = conn.prepareStatement(ysql)) {
-                    ps2.setString(1, yksityinen.getEtunimi());
-                    ps2.setString(2, yksityinen.getSukunimi());
-                    ps2.setInt(3, yksityinen.getAsiakasId());
+                    ps2.setString(1, paivitettyYksityinen.getEtunimi());
+                    ps2.setString(2, paivitettyYksityinen.getSukunimi());
+                    ps2.setInt(3, paivitettyYksityinen.getAsiakasId());
                     ps2.executeUpdate();
                 }
             }
-            else if (asiakas instanceof Yritys yritys) {
+            else if (asiakas instanceof Yritys paivitettyYritys) { // Korjattu muuttujan nimi
                 String ysql = "UPDATE Yritys SET yrityksen_nimi = ?, y_tunnus = ? WHERE asiakas_id = ?";
                 try (PreparedStatement ps2 = conn.prepareStatement(ysql)) {
-                    ps2.setString(1, yritys.getYrityksenNimi());
-                    ps2.setString(2, yritys.getYtunnus());
-                    ps2.setInt(3, yritys.getAsiakasId());
+                    ps2.setString(1, paivitettyYritys.getYrityksenNimi());
+                    ps2.setString(2, paivitettyYritys.getYtunnus());
+                    ps2.setInt(3, paivitettyYritys.getAsiakasId());
                     ps2.executeUpdate();
                 }
             }
@@ -294,10 +293,9 @@ public class AsiakasDAO {
      * @param asiakas
      */
     public void lisaaAsiakas(Asiakas asiakas) {
-        String sqlAsiakas = "INSERT INTO Asiakas (katuosoite, postinumero, email, puhelin) VALUES (?, ?, ?, ?)";
+        String sqlAsiakas = "INSERT INTO Asiakas (katuosoite, postinumero, email, puhelin) VALUES (?, ?, ?, ?) RETURNING asiakas_id";
 
         try (Connection conn = Database.getConnection();
-            // RETURN_GENERATED_KEYS tarvitaan aliluokkaan lisäämistä varten
              PreparedStatement psAsiakas = conn.prepareStatement(sqlAsiakas, Statement.RETURN_GENERATED_KEYS)) {
 
             psAsiakas.setString(1, asiakas.getKatuosoite());
@@ -306,13 +304,10 @@ public class AsiakasDAO {
             psAsiakas.setString(4, asiakas.getPuhelin());
             psAsiakas.executeUpdate();
 
-            // Haetaan tietokannan automaattisesti generoimat avaimet
             ResultSet generatedKeys = psAsiakas.getGeneratedKeys();
             if (generatedKeys.next()) {
-                // Otetaan ensimmäinen generoitu avain (yleensä ensimmäinen sarake sisältää luodun ID:n)
                 int asiakasId = generatedKeys.getInt(1);
 
-                // Lisää aliluokkaan
                 if (asiakas instanceof Yksityishenkilo yksityinen) {
                     String sqlYksityinen = "INSERT INTO Yksityishenkilo (asiakas_id, etunimi, sukunimi) VALUES (?, ?, ?)";
                     try (PreparedStatement psYksityinen = conn.prepareStatement(sqlYksityinen)) {
@@ -339,11 +334,5 @@ public class AsiakasDAO {
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
 }
 

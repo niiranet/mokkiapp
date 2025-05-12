@@ -33,17 +33,12 @@ public class VarausDAO {
         return varaukset;
     }
 
-    public void lisaaVaraus(Varaustiedot varaus) {
-        // SQL-kysely uuden varauksen lisäämiseksi.
-        // Huomaa, että 'varaus_id'-kenttää ei mainita lisättävissä sarakkeissa.
-        // Tämä johtuu siitä, että 'varaus_id' on tietokannassa määritelty
-        // automaattisesti kasvavaksi (SERIAL), joten tietokanta luo sille
-        // uuden yksilöllisen arvon automaattisesti.
+    public int lisaaVaraus(Varaustiedot varaus) throws SQLException {
         String sql = "INSERT INTO Varaus (asiakas_id, mokki_id, alkupvm, loppupvm, varaus_pvm) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, varaus.getAsiakasId());
             ps.setInt(2, varaus.getMokkiId());
@@ -51,11 +46,58 @@ public class VarausDAO {
             ps.setDate(4, Date.valueOf(varaus.getLoppupvm()));
             ps.setDate(5, Date.valueOf(varaus.getVarausPvm()));
 
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Varauksen luonti epäonnistui, yhtään riviä ei lisätty.");
+            }
+
+            // Hae viimeksi lisätyn rivin ID MySQL:ssä
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT last_insert_id()")) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new SQLException("Varauksen ID:n haku epäonnistui.");
+                }
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         }
+    }
+
+    public Varaustiedot haeVaraus(int varausId) throws SQLException {
+        String sql = "SELECT * FROM Varaus WHERE varaus_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, varausId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Varaustiedot(
+                        rs.getInt("varaus_id"),
+                        rs.getInt("asiakas_id"),
+                        rs.getInt("mokki_id"),
+                        rs.getDate("alkupvm").toLocalDate(),
+                        rs.getDate("loppupvm").toLocalDate(),
+                        rs.getDate("varaus_pvm").toLocalDate()
+                );
+            }
+        }
+        return null;
+    }
+
+    public int haeAsiakasIdVaraukselta(int varausId) throws SQLException {
+        String sql = "SELECT asiakas_id FROM Varaus WHERE varaus_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, varausId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("asiakas_id");
+            }
+        }
+        return -1; // Palauttaa -1, jos varausta ei löydy
     }
 
     public List<Varaustiedot> getReservationsByCottageAndMonth(int mokkiId, int month) throws SQLException {
