@@ -10,10 +10,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 
-import com.mokki.mokkiapp.model.Asiakas; // Lisää tämä rivi
-import com.mokki.mokkiapp.model.Lasku;   // Lisää tämä rivi
-import com.mokki.mokkiapp.dao.LaskuDAO;     // Lisää tämä rivi
-import java.sql.SQLException;            // Lisää tämä rivi, jos et ole jo importoinut
+import com.mokki.mokkiapp.model.Asiakas;
+import com.mokki.mokkiapp.model.Lasku;
+import com.mokki.mokkiapp.dao.LaskuDAO;
+import java.sql.SQLException;
 import java.math.BigDecimal;
 
 import javafx.collections.FXCollections;
@@ -285,65 +285,69 @@ public class MajoitusvarauksetController {
         }
 
         if (selectedCottage != null && alkupvm != null && loppupvm != null && asiakasId != -1) {
-            // Luo uusi Varaustiedot-objekti
-            Varaustiedot uusiVaraus = new Varaustiedot(
-                    -1, // Varaus ID luodaan automaattisesti tietokannassa
-                    asiakasId,
-                    selectedCottage.getMokkiId(),
-                    alkupvm,
-                    loppupvm,
-                    LocalDate.now() // Aseta varauspäivämääräksi nykyinen päivä
-            );
-
-            // Tallenna uusi varaus tietokantaan
             try {
-                int varausId = varausDAO.lisaaVaraus(uusiVaraus); // Nyt lisaaVaraus palauttaa luodun ID:n
-                System.out.println("Luotu varaus ID: " + varausId); // Lisätty tulostuslauseke
+                // 1. Hae olemassa olevat varaukset valitulle mökille ja aikavälille
+                List<Varaustiedot> olemassaOlevatVaraukset = varausDAO.haeVarauksetMokilleAikavalilla(
+                        selectedCottage.getMokkiId(), alkupvm, loppupvm);
 
-                // Hae asiakkaan ID juuri luodusta varauksesta
+                // 2. Tarkista, onko päällekkäisyyttä
+                boolean onPaallekkaisyytta = false;
+                if (olemassaOlevatVaraukset != null && !olemassaOlevatVaraukset.isEmpty()) {
+                    onPaallekkaisyytta = true;
+                }
+
+                // 3. Jos päällekkäisyyttä on, näytä virheilmoitus ja estä varaus
+                if (onPaallekkaisyytta) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Varaus epäonnistui");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Valittu mökki on jo varattu valitulla ajankohdalla.");
+                    alert.showAndWait();
+                    return; // Poistu metodista, älä luo uutta varausta
+                }
+
+                // 4. Jos ei ole päällekkäisyyttä, luo uusi varaus ja lasku
+                Varaustiedot uusiVaraus = new Varaustiedot(
+                        -1, // Varaus ID luodaan automaattisesti tietokannassa
+                        asiakasId,
+                        selectedCottage.getMokkiId(),
+                        alkupvm,
+                        loppupvm,
+                        LocalDate.now() // Aseta varauspäivämääräksi nykyinen päivä
+                );
+
+                int varausId = varausDAO.lisaaVaraus(uusiVaraus);
+                System.out.println("Luotu varaus ID: " + varausId);
+
                 int laskunAsiakasId = varausDAO.haeAsiakasIdVaraukselta(varausId);
                 Asiakas laskunAsiakas = asiakasDAO.haeAsiakas(laskunAsiakasId);
 
                 if (laskunAsiakas != null) {
-                    // Luo uusi lasku
                     Lasku uusiLasku = new Lasku();
                     uusiLasku.setAsiakas(laskunAsiakas);
                     uusiLasku.setVarausId(varausId);
                     uusiLasku.setLuontipvm(LocalDate.now());
 
-                    // Hae mökin hinta
-                    BigDecimal mokinHinta = selectedCottage.getHinta(); // Oletetaan getHinta()-metodi
-
-                    // Laske varauksen kesto päivinä
+                    BigDecimal mokinHinta = selectedCottage.getHinta();
                     long varausKestoPaivina = java.time.temporal.ChronoUnit.DAYS.between(alkupvm, loppupvm);
                     BigDecimal kestoBigDecimal = new BigDecimal(varausKestoPaivina);
-
-                    // Laske kokonaissumma
                     BigDecimal kokonaissumma = mokinHinta.multiply(kestoBigDecimal);
                     uusiLasku.setSumma(kokonaissumma);
-
-                    // Aseta eräpäivä (esimerkiksi 14 päivää varauksesta)
                     LocalDate erapaiva = LocalDate.now().plusDays(14);
                     uusiLasku.setErapaiva(java.sql.Date.valueOf(erapaiva));
-
-                    // Aseta tilinumero
                     uusiLasku.setTilinro("FI1234567890123456");
                     uusiLasku.setMaksettu(false);
 
-                    // Tallenna uusi lasku tietokantaan
                     LaskuDAO laskuDAO = new LaskuDAO();
                     laskuDAO.lisaaLasku(uusiLasku);
 
-                    // Päivitä varausnäkymä
                     updateReservationsTable(selectedCottage.getMokkiId(), monthComboBox.getValue());
-                    // Näytä onnistumisviesti
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Varaus ja lasku onnistui");
                     alert.setHeaderText(null);
                     alert.setContentText("Uusi varaus ja lasku on luotu onnistuneesti!");
                     alert.showAndWait();
 
-                    // Tyhjennä kentät onnistuneen varauksen jälkeen (valinnaista)
                     cottageComboBox.setValue(null);
                     alkupvmDatePicker.setValue(null);
                     loppupvmDatePicker.setValue(null);
@@ -351,7 +355,6 @@ public class MajoitusvarauksetController {
                     selectedAsiakas = null;
 
                 } else {
-                    // Jos asiakasta ei löydy varaus-ID:llä, näytä virhe
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Virhe");
                     alert.setHeaderText("Asiakasta ei löytynyt luodulle varaukselle.");
@@ -361,7 +364,6 @@ public class MajoitusvarauksetController {
 
             } catch (SQLException e) {
                 e.printStackTrace();
-                // Näytä virheviesti varauksen luonnin epäonnistuessa
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Varaus epäonnistui");
                 alert.setHeaderText("Varauksen luomisessa tapahtui virhe.");
@@ -369,7 +371,6 @@ public class MajoitusvarauksetController {
                 alert.showAndWait();
             } catch (Exception e) {
                 e.printStackTrace();
-                // Näytä yleinen virheviesti, jos jokin muu menee pieleen
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Virhe");
                 alert.setHeaderText("Tapahtui odottamaton virhe.");
@@ -377,7 +378,6 @@ public class MajoitusvarauksetController {
                 alert.showAndWait();
             }
         } else {
-            // Näytä varoitusviesti, jos kaikki tiedot eivät ole valittuna
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Puuttuvia tietoja");
             alert.setHeaderText(null);
