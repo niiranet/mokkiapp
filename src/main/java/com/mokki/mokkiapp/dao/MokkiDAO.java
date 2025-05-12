@@ -22,6 +22,8 @@ public class MokkiDAO {
         Postialue postialue = new Postialue("99999", "Testikylä", "Suomi");
         postialueDAO.lisaaPostialue(postialue);
 
+
+        // Luominen
         Mokki uusiMokki = new Mokki(
                 0, // mökki_id = 0, koska SERIAL
                 "TESTIMÖKKI",
@@ -34,10 +36,20 @@ public class MokkiDAO {
         mokkiDAO.lisaaMokki(uusiMokki);
 
 
+        // Päivittäminen
+        Mokki paivitetty = new Mokki(
+                5, // 5 = Tunturimökki
+                "TUNTURIMÖKKI",
+                "TESTIKUJA 9",
+                new BigDecimal("5000.00"),
+                "PÄIVITETTY KUVAUS",
+                new Postialue("00100", "Helsinki", "Suomi")
+                );
+        MokkiDAO.paivitaMokki(paivitetty);
+
+
         // luominen: OK
         // pävittäminen: OK
-
-
     }
 
 
@@ -140,6 +152,30 @@ public class MokkiDAO {
         }
     }
 
+
+    /**
+     * Päivitä mökin tietoja
+     * @param mokki
+     */
+    public static void paivitaMokki(Mokki mokki) {
+        String sql = "UPDATE Mökki SET nimi = ?, katuosoite = ?, postinumero = ?, hinta = ?, kuvaus = ? WHERE mokki_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, mokki.getNimi());
+            ps.setString(2, mokki.getKatuosoite());
+            ps.setString(3, mokki.getPostialue().getPostinumero());
+            ps.setBigDecimal(4, mokki.getHinta());
+            ps.setString(5, mokki.getKuvaus());
+            ps.setInt(6, mokki.getMokkiId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
