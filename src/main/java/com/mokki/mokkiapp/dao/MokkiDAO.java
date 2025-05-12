@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
 
+
 public class MokkiDAO {
 
     public List<Integer> haeKaikkiMokkiIdt() {
@@ -25,6 +26,7 @@ public class MokkiDAO {
         }
         return mokkiIds;
     }
+
 
     public List<Mokki> haeKaikkiMokitNimella() {
         List<Mokki> mokit = new ArrayList<>();
@@ -55,6 +57,7 @@ public class MokkiDAO {
         return mokit;
     }
 
+
     public Mokki haeMokki(int mokkiId) {
         String sql = "SELECT m.mokki_id, m.nimi, m.katuosoite, m.hinta, m.kuvaus, m.postinumero, p.kunta, p.maa " +
                 "FROM Mökki m JOIN Postialue p ON m.postinumero = p.postinumero " + // KORJATTU JOIN-LAUSE
@@ -84,7 +87,8 @@ public class MokkiDAO {
         return null;
     }
 
+    
     // Lisää tarvittaessa muita MokkiDAO:n metodeja
-}
 
-    // Lisää tarvittaessa muita MokkiDAO:n metodeja
+
+}

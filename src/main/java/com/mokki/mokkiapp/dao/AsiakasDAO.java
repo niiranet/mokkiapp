@@ -3,6 +3,8 @@ package com.mokki.mokkiapp.dao;
 import com.mokki.mokkiapp.Varaustiedot;
 import com.mokki.mokkiapp.model.*;
 import com.mokki.mokkiapp.database.Database;
+import com.mokki.mokkiapp.dao.MiscDAO;
+import com.mokki.mokkiapp.testaus.Misc;
 
 import java.sql.*;
 import java.util.*;
@@ -16,14 +18,17 @@ public class AsiakasDAO {
      */
     public static void main(String[] args) {
         AsiakasDAO dao = new AsiakasDAO();
+        MiscDAO postialueDAO = new MiscDAO();
+        String yTunnus = Misc.generoiYTunnus();
 
+
+        // Päivittäiminen
         Postialue postialue1 = new Postialue("00100", "Helsinki", "Suomi");
         Yksityishenkilo paivitettyYksityinen = new Yksityishenkilo(
                 1, "Päivitettykatu 10", "uusi@email.com", "0401234567", postialue1,
                 "Maija", "Mallikas"
         );
         dao.paivitaAsiakasTiedot(paivitettyYksityinen);
-
 
         Postialue postialue2 = new Postialue("20100", "Turku", "Suomi");
         Yritys paivitettyYritys = new Yritys(
@@ -32,9 +37,39 @@ public class AsiakasDAO {
         );
         dao.paivitaAsiakasTiedot(paivitettyYritys);
 
-        // OK
+
+        // Luominen
+        Postialue postialue3 = new Postialue("99999", "Testikaupunki", "Suomi");
+        MiscDAO.lisaaPostialue(postialue3);
+
+        Yksityishenkilo yksityinen = new Yksityishenkilo(
+                0, // 0 = SERIAL kenttä määrittelee automaattisesti ID:n
+                "TESTIKATU 123",
+                "teppo@testi.fi",
+                "0401234567",
+                postialue3,
+                "Teppo",
+                "Testaaja"
+        );
+        dao.lisaaAsiakas(yksityinen);
+
+        Yritys yritys = new Yritys(
+                0, // 0 = SERIAL kenttä määrittelee automaattisesti ID:n
+                "TESTITIE 456",
+                "info@firma.fi",
+                "0207654321",
+                postialue2,
+                "Testifirma Oy",
+                yTunnus
+        );
+        dao.lisaaAsiakas(yritys);
+
+
+        // pävittäminen: OK
+        // luominen: asiakas_id skippaa yhdellä
 
     }
+
 
 
     /**
@@ -252,6 +287,59 @@ public class AsiakasDAO {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * Lisää uusi asiakas tietokantaan
+     * @param asiakas
+     */
+    public void lisaaAsiakas(Asiakas asiakas) {
+        String sqlAsiakas = "INSERT INTO Asiakas (katuosoite, postinumero, email, puhelin) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = Database.getConnection();
+            // RETURN_GENERATED_KEYS tarvitaan aliluokkaan lisäämistä varten
+             PreparedStatement psAsiakas = conn.prepareStatement(sqlAsiakas, Statement.RETURN_GENERATED_KEYS)) {
+
+            psAsiakas.setString(1, asiakas.getKatuosoite());
+            psAsiakas.setString(2, asiakas.getPostialue().getPostinumero());
+            psAsiakas.setString(3, asiakas.getEmail());
+            psAsiakas.setString(4, asiakas.getPuhelin());
+            psAsiakas.executeUpdate();
+
+            // Haetaan tietokannan automaattisesti generoimat avaimet
+            ResultSet generatedKeys = psAsiakas.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                // Otetaan ensimmäinen generoitu avain (yleensä ensimmäinen sarake sisältää luodun ID:n)
+                int asiakasId = generatedKeys.getInt(1);
+
+                // Lisää aliluokkaan
+                if (asiakas instanceof Yksityishenkilo yksityinen) {
+                    String sqlYksityinen = "INSERT INTO Yksityishenkilo (asiakas_id, etunimi, sukunimi) VALUES (?, ?, ?)";
+                    try (PreparedStatement psYksityinen = conn.prepareStatement(sqlYksityinen)) {
+                        psYksityinen.setInt(1, asiakasId);
+                        psYksityinen.setString(2, yksityinen.getEtunimi());
+                        psYksityinen.setString(3, yksityinen.getSukunimi());
+                        psYksityinen.executeUpdate();
+                    }
+                } else if (asiakas instanceof Yritys yritys) {
+                    String sqlYritys = "INSERT INTO Yritys (asiakas_id, yrityksen_nimi, y_tunnus) VALUES (?, ?, ?)";
+                    try (PreparedStatement psYritys = conn.prepareStatement(sqlYritys)) {
+                        psYritys.setInt(1, asiakasId);
+                        psYritys.setString(2, yritys.getYrityksenNimi());
+                        psYritys.setString(3, yritys.getYtunnus());
+                        psYritys.executeUpdate();
+                    }
+                }
+
+            } else {
+                throw new SQLException("Asiakas ID:n luonti epäonnistui.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 
