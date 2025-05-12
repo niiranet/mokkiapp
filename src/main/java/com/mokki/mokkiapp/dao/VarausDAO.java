@@ -237,4 +237,32 @@ public class VarausDAO {
         }
         return varaukset;
     }
+
+    public List<Varaustiedot> haeVarauksetMokilleAikavalilla(int mokkiId, LocalDate alku, LocalDate loppu) {
+        List<Varaustiedot> varaukset = new ArrayList<>();
+        String sql = "SELECT * FROM Varaus " +
+                "WHERE mokki_id = ? AND " +
+                "(alkupvm < ? AND loppupvm > ?)";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, mokkiId);
+            ps.setDate(2, Date.valueOf(loppu)); // Tarkistetaan, että olemassa oleva varaus alkaa ennen uuden varauksen loppua
+            ps.setDate(3, Date.valueOf(alku));  // Tarkistetaan, että olemassa oleva varaus loppuu uuden varauksen alkamisen jälkeen
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    varaukset.add(new Varaustiedot(
+                            rs.getInt("varaus_id"),
+                            rs.getInt("asiakas_id"),
+                            rs.getInt("mokki_id"),
+                            rs.getDate("alkupvm").toLocalDate(),
+                            rs.getDate("loppupvm").toLocalDate(),
+                            rs.getDate("varaus_pvm").toLocalDate()
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return varaukset;
+    }
 }
