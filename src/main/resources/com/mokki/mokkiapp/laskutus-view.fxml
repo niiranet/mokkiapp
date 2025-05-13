@@ -176,7 +176,7 @@
                       <TableColumn fx:id="lasku_idColumn" prefWidth="75.0" text="Lasku_id" />
                       <TableColumn fx:id="varaus_idColumn" prefWidth="75.0" text="Varaus_id" />
                         <TableColumn fx:id="summaColumn" prefWidth="75.0" text="Summa" />
-                        <TableColumn fx:id="tilinroColumn" prefWidth="75.0" text="Tilinro" />
+                        <TableColumn fx:id="tilinroColumn" prefWidth="75.0" text="Viitenumero" />
                         <TableColumn fx:id="erapaivaColumn" prefWidth="75.0" text="Erapaiva" />
                         <TableColumn fx:id="maksupvmColumn" prefWidth="75.0" text="Maksupvm" />
                         <TableColumn fx:id="maksettuColumn" prefWidth="75.0" text="Maksettu" />
