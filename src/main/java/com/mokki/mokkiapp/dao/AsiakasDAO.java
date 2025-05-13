@@ -384,13 +384,70 @@ public class AsiakasDAO {
         return null;
     }
 
+    public void poistaAsiakas(int asiakasId) throws SQLException {
+        String sqlAsiakas = "DELETE FROM Asiakas WHERE asiakas_id = ?";
+        String sqlYksityishenkilo = "DELETE FROM Yksityishenkilo WHERE asiakas_id = ?";
+        String sqlYritys = "DELETE FROM Yritys WHERE asiakas_id = ?";
 
-    //Vanhan metodin koodit jätetty varuilta talteen.
-    //MySQL supports retrieval of auto-generated keys (like AUTO_INCREMENT primary keys) via JDBC, but not directly in SQL syntax like PostgreSQL does.
-    ///**
-    // * Lisää uusi asiakas tietokantaan
-    // * @param asiakas
-    // */
+        Connection conn = null;
+        PreparedStatement psAsiakas = null;
+        PreparedStatement psYksityishenkilo = null;
+        PreparedStatement psYritys = null;
+
+        try {
+            conn = Database.getConnection();
+            conn.setAutoCommit(false); // Aloitetaan transaktio
+
+            // Poistetaan ensin mahdolliset tiedot Yksityishenkilo-taulusta
+            psYksityishenkilo = conn.prepareStatement(sqlYksityishenkilo);
+            psYksityishenkilo.setInt(1, asiakasId);
+            psYksityishenkilo.executeUpdate();
+
+            // Poistetaan sitten mahdolliset tiedot Yritys-taulusta
+            psYritys = conn.prepareStatement(sqlYritys);
+            psYritys.setInt(1, asiakasId);
+            psYritys.executeUpdate();
+
+            // Lopuksi poistetaan tiedot Asiakas-taulusta
+            psAsiakas = conn.prepareStatement(sqlAsiakas);
+            psAsiakas.setInt(1, asiakasId);
+            int rowsAffected = psAsiakas.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("Asiakkaan poisto epäonnistui. Asiakasta ID:llä " + asiakasId + " ei löytynyt.");
+            }
+
+            conn.commit(); // Vahvistetaan transaktio
+        } catch (SQLException e) {
+            if (conn != null) {
+                conn.rollback(); // Palautetaan muutokset virheen sattuessa
+            }
+            throw e;
+        } finally {
+            if (psAsiakas != null) {
+                psAsiakas.close();
+            }
+            if (psYksityishenkilo != null) {
+                psYksityishenkilo.close();
+            }
+            if (psYritys != null) {
+                psYritys.close();
+            }
+            if (conn != null) {
+                conn.setAutoCommit(true); // Palautetaan auto-commit tilaan
+                conn.close();
+            }
+        }
+    }
+
+    // ... (Muut olemassa olevat metodit) ...
+}
+//Vanhan metodin koodit jätetty varuilta talteen.
+//MySQL supports retrieval of auto-generated keys (like AUTO_INCREMENT primary keys) via JDBC, but not directly in SQL syntax like PostgreSQL does.
+///**
+// * Lisää uusi asiakas tietokantaan
+// * @param asiakas
+// */
     /* Korvattu vanha metodi
     public void lisaaAsiakas(Asiakas asiakas) {
         String sqlAsiakas = "INSERT INTO Asiakas (katuosoite, postinumero, email, puhelin) VALUES (?, ?, ?, ?) RETURNING asiakas_id";
@@ -435,10 +492,3 @@ public class AsiakasDAO {
         }
     }
     */
-}
-
-
-
-
-
-
