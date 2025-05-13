@@ -198,17 +198,29 @@ public class AsiakashallintaController {
         try {
             // Poistetaan ylimääräiset välilyönnit, puhelinnumerosta ja sähköpostista poistetaan kaikki white space
             String tyyppi = lisaaAsiakasComboBox.getValue(); // "Yksityishenkilö" tai "Yritys"
-            String katuosoite = normalizeWhitespace(lisaaAsiakasTextField15.getText());
+            String katuosoite = toCamelCase(normalizeWhitespace(lisaaAsiakasTextField15.getText()));
             String email = normalizeWhitespace(lisaaAsiakasTextField14.getText()).replaceAll("\\s+", "");
             String puhelin = normalizeWhitespace(lisaaAsiakasTextField13.getText()).replaceAll("\\s+", "");
             String postinumero = normalizeWhitespace(lisaaAsiakasTextField16.getText());
-            String kunta = normalizeWhitespace(lisaaAsiakasTextField17.getText());
-            String maa = normalizeWhitespace(lisaaAsiakasTextField18.getText());
+            String kunta = toCamelCase(normalizeWhitespace(lisaaAsiakasTextField17.getText()));
+            String maa = toCamelCase(normalizeWhitespace(lisaaAsiakasTextField18.getText()));
 
             // Tarkastetaan, että kentät eivät ole tyhjänä
             if (tyyppi == null || katuosoite.isBlank() || email.isBlank() || puhelin.isBlank()
                     || postinumero.isBlank() || kunta.isBlank() || maa.isBlank()) {
                 showError("Virhe", "Kaikki kentät ovat pakollisia.");
+                return;
+            }
+
+            // Tarkistetaan, että puhelinnumero on oikean muotoinen: sallitaan vain numerot ja valinnainen '+'-merkki alussa
+            if (!puhelin.matches("^\\+?\\d+$")) {
+                showError("Virhe", "Puhelinnumero saa sisältää vain numeroita ja korkeintaan yhden +-merkin alussa esim. suuntanumero +358501234567");
+                return;
+            }
+
+            // Tarkistetaan, että postinumero sisältää vain numeroita
+            if (!postinumero.matches("^\\d+$")) {
+                showError("Virhe", "Postinumeron tulee sisältää vain numeroita.");
                 return;
             }
 
@@ -218,8 +230,8 @@ public class AsiakashallintaController {
 
             // Haetaan yksityishenkilöspesifit tiedot lomakkeelta
             if (tyyppi.equals("Yksityishenkilö")) {
-                String etunimi = normalizeWhitespace(lisaaAsiakasTextField11.getText());
-                String sukunimi = normalizeWhitespace(lisaaAsiakasTextField12.getText());
+                String etunimi = toCamelCase(normalizeWhitespace(lisaaAsiakasTextField11.getText()));
+                String sukunimi = toCamelCase(normalizeWhitespace(lisaaAsiakasTextField12.getText()));
 
                 if (etunimi.isBlank() || sukunimi.isBlank()) {
                     showError("Virhe", "Etunimi ja sukunimi ovat pakollisia.");
@@ -228,8 +240,9 @@ public class AsiakashallintaController {
 
                 uusiAsiakas = new Yksityishenkilo(0, katuosoite, email, puhelin, postialue, etunimi, sukunimi);
 
-            } else if (tyyppi.equals("Yritys")) { // Haetaan yritysspesifit tiedot lomakkeelta
-                String yrityksenNimi = normalizeWhitespace(lisaaAsiakasTextField11.getText());
+            } else if (tyyppi.equals("Yritys")) {
+                // Haetaan yritysspesifit tiedot lomakkeelta
+                String yrityksenNimi = toCamelCase(normalizeWhitespace(lisaaAsiakasTextField11.getText()));
                 String ytunnus = normalizeWhitespace(lisaaAsiakasTextField12.getText());
 
                 if (yrityksenNimi.isBlank() || ytunnus.isBlank()) {
@@ -239,7 +252,7 @@ public class AsiakashallintaController {
 
                 // Tarkastetaan regexpatternilla, että käyttäjä on täyttänyt oikein y-tunnuksen XXXXXXX-X ja annetaan virheilmoitus muutoin
                 if (!ytunnus.matches("\\d{7}-\\d")) {
-                    showError("Virhe", "Virheellinen Y-tunnus. Varmista, että se on muotoa XXXXXXXX-X.");
+                    showError("Virhe", "Virheellinen Y-tunnus. Varmista, että se on muotoa XXXXXXX-X.");
                     return;
                 }
 
@@ -266,6 +279,25 @@ public class AsiakashallintaController {
             showError("Virhe", "Tuntematon virhe asiakasta lisätessä.");
         }
     }
+
+    // Metodi jolla muutetaan nimet camel case
+    private String toCamelCase(String input) {
+        if (input == null || input.isBlank()) return input;
+
+        String[] parts = input.toLowerCase().split("\\s+");
+        StringBuilder camelCase = new StringBuilder();
+
+        for (String part : parts) {
+            if (!part.isBlank()) {
+                camelCase.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1));
+                camelCase.append(" ");
+            }
+        }
+
+        return camelCase.toString().trim();
+    }
+
 
     // Metodi jolla poistetaan ylimääräiset välilyönnit
     private String normalizeWhitespace(String input) {
