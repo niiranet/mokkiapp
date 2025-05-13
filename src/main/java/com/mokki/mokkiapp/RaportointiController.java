@@ -23,4 +23,6 @@ public class RaportointiController {
         window.show();
     }
 
+    public void handleNaytaRaportti(ActionEvent actionEvent) {
+    }
 }
