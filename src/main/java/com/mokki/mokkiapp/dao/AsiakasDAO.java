@@ -5,6 +5,7 @@ import com.mokki.mokkiapp.model.*;
 import com.mokki.mokkiapp.database.Database;
 import com.mokki.mokkiapp.dao.MiscDAO;
 import com.mokki.mokkiapp.testaus.Misc;
+import javafx.scene.control.Alert;
 
 import java.sql.*;
 import java.util.*;
@@ -51,7 +52,7 @@ public class AsiakasDAO {
                 "Teppo",
                 "Testaaja"
         );
-        dao.lisaaAsiakas(yksityinen);
+        //dao.lisaaAsiakas(yksityinen);  //viety try blockin sisälle ks. alta TN 13.5.2025
 
         Yritys yritys = new Yritys(
                 0, // 0 = SERIAL kenttä määrittelee automaattisesti ID:n
@@ -62,8 +63,16 @@ public class AsiakasDAO {
                 "Testifirma Oy",
                 yTunnus
         );
-        dao.lisaaAsiakas(yritys);
+        //dao.lisaaAsiakas(yritys); //viety try blockin sisälle ks. alta TN 13.5.2025
 
+        // Lisätty virheen hallinta TN 13.5.2025
+        try {
+            dao.lisaaAsiakas(yksityinen);
+            dao.lisaaAsiakas(yritys);
+        } catch (SQLException e) {
+            System.err.println("Virhe asiakasta lisätessä: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // pävittäminen: OK
         // luominen: asiakas_id skippaa yhdellä
@@ -292,6 +301,97 @@ public class AsiakasDAO {
      * Lisää uusi asiakas tietokantaan
      * @param asiakas
      */
+    public void lisaaAsiakas(Asiakas asiakas) throws SQLException {
+
+        MiscDAO miscDAO = new MiscDAO();
+        Postialue pa = asiakas.getPostialue();
+        if (!miscDAO.onkoPostialueOlemassa(pa.getPostinumero())) {
+            miscDAO.lisaaPostialue(pa);  // Lisää uusi postialue, jos sitä ei ole
+        }
+
+        String sqlAsiakas = "INSERT INTO Asiakas (katuosoite, postinumero, email, puhelin) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement psAsiakas = conn.prepareStatement(sqlAsiakas, Statement.RETURN_GENERATED_KEYS)) {
+
+            psAsiakas.setString(1, asiakas.getKatuosoite());
+            psAsiakas.setString(2, asiakas.getPostialue().getPostinumero());
+            psAsiakas.setString(3, asiakas.getEmail());
+            psAsiakas.setString(4, asiakas.getPuhelin());
+            psAsiakas.executeUpdate();
+
+            try (ResultSet generatedKeys = psAsiakas.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int asiakasId = generatedKeys.getInt(1);
+
+                    if (asiakas instanceof Yksityishenkilo yksityinen) {
+                        String sqlYksityinen = "INSERT INTO Yksityishenkilo (asiakas_id, etunimi, sukunimi) VALUES (?, ?, ?)";
+                        try (PreparedStatement psYksityinen = conn.prepareStatement(sqlYksityinen)) {
+                            psYksityinen.setInt(1, asiakasId);
+                            psYksityinen.setString(2, yksityinen.getEtunimi());
+                            psYksityinen.setString(3, yksityinen.getSukunimi());
+                            psYksityinen.executeUpdate();
+                        }
+                    } else if (asiakas instanceof Yritys yritys) {
+                        String sqlYritys = "INSERT INTO Yritys (asiakas_id, yrityksen_nimi, y_tunnus) VALUES (?, ?, ?)";
+                        try (PreparedStatement psYritys = conn.prepareStatement(sqlYritys)) {
+                            psYritys.setInt(1, asiakasId);
+                            psYritys.setString(2, yritys.getYrityksenNimi());
+                            psYritys.setString(3, yritys.getYtunnus());
+                            psYritys.executeUpdate();
+                        }
+                    }
+                } else {
+                    throw new SQLException("Asiakas ID:n luonti epäonnistui.");
+                }
+            }
+        }
+    }
+
+    public Yritys etsiYritysYtunnuksella(String ytunnus) {
+        String sql = "SELECT y.*, p.postinumero, p.kunta, p.maa FROM yritys y " +
+                "JOIN postialue p ON y.postialue_id = p.id WHERE y.y_tunnus = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, ytunnus.trim());
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Create Postialue object from the fetched values
+                Postialue postialue = new Postialue(
+                        rs.getString("postinumero"),
+                        rs.getString("kunta"),
+                        rs.getString("maa")
+                );
+
+                // Return the Yritys object with the Postialue included
+                return new Yritys(
+                        rs.getInt("id"),
+                        rs.getString("katuosoite"),
+                        rs.getString("email"),
+                        rs.getString("puhelin"),
+                        postialue,
+                        rs.getString("nimi"),
+                        rs.getString("y_tunnus")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Proper logging or exception handling
+        }
+
+        return null;
+    }
+
+
+    //Vanhan metodin koodit jätetty varuilta talteen.
+    //MySQL supports retrieval of auto-generated keys (like AUTO_INCREMENT primary keys) via JDBC, but not directly in SQL syntax like PostgreSQL does.
+    ///**
+    // * Lisää uusi asiakas tietokantaan
+    // * @param asiakas
+    // */
+    /* Korvattu vanha metodi
     public void lisaaAsiakas(Asiakas asiakas) {
         String sqlAsiakas = "INSERT INTO Asiakas (katuosoite, postinumero, email, puhelin) VALUES (?, ?, ?, ?) RETURNING asiakas_id";
 
@@ -334,5 +434,11 @@ public class AsiakasDAO {
             e.printStackTrace();
         }
     }
+    */
 }
+
+
+
+
+
 
