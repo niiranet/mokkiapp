@@ -312,7 +312,7 @@ public class AsiakashallintaController {
                     showInfo("Onnistui", "Asiakas poistettiin onnistuneesti.");
                     paivitaAsiakastaulukko();
                 } catch (SQLException e) {
-                    showError("Virhe", "Tietokantavirhe asiakasta poistettaessa.");
+                    showError("Virhe", "Virhe asiakkaan poistamisessa, Asiakkaalla on aktiivisia varauksia tai laskuja.");
                     e.printStackTrace();
                 }
             }
