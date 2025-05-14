@@ -71,8 +71,7 @@ public class AsiakashallintaController {
     private TextField lisaaAsiakasTextField06;
     @FXML
     private TextField lisaaAsiakasTextField07;
-    @FXML
-    private TextField lisaaAsiakasTextField08;
+    // Poistettu: @FXML private TextField lisaaAsiakasTextField08;
     @FXML
     private TextField lisaaAsiakasTextField11;
     @FXML
@@ -105,8 +104,7 @@ public class AsiakashallintaController {
     private TextField muokkaaAsiakasTextField06;
     @FXML
     private TextField muokkaaAsiakasTextField07;
-    @FXML
-    private TextField muokkaaAsiakasTextField08;
+    // Poistettu: @FXML private TextField muokkaaAsiakasTextField08;
 
     // Muokkaa asiakastietoja tabin matskut
     @FXML
@@ -144,7 +142,7 @@ public class AsiakashallintaController {
         lisaaAsiakasTextField05.setEditable(false);
         lisaaAsiakasTextField06.setEditable(false);
         lisaaAsiakasTextField07.setEditable(false);
-        lisaaAsiakasTextField08.setEditable(false);
+        // Poistettu: lisaaAsiakasTextField08.setEditable(false);
 
         lisaaAsiakasComboBox.setOnAction(event -> {
             String selected = lisaaAsiakasComboBox.getValue();
@@ -338,7 +336,7 @@ public class AsiakashallintaController {
         muokkaaAsiakasTextField05.clear();
         muokkaaAsiakasTextField06.clear();
         muokkaaAsiakasTextField07.clear();
-        muokkaaAsiakasTextField08.clear();
+        // Poistettu: muokkaaAsiakasTextField08.clear();
         lisaaAsiakasComboBox.setValue(null);
     }
 
@@ -357,7 +355,7 @@ public class AsiakashallintaController {
         String[] postialueOsat = asiakas.getPostialue().split(" ", 2);
         muokkaaAsiakasTextField06.setText(postialueOsat[0]);
         muokkaaAsiakasTextField07.setText(postialueOsat.length > 1 ? postialueOsat[1] : "");
-        muokkaaAsiakasTextField08.setText(""); // Maa ei ole eritelty ViewModelissä
+        // Poistettu: muokkaaAsiakasTextField08.setText(""); // Maa ei ole eritelty ViewModelissä
     }
 
     private void tyhjennaMuokkaaLomake() {
@@ -368,7 +366,7 @@ public class AsiakashallintaController {
         muokkaaAsiakasTextField05.clear();
         muokkaaAsiakasTextField06.clear();
         muokkaaAsiakasTextField07.clear();
-        muokkaaAsiakasTextField08.clear();
+        // Poistettu: muokkaaAsiakasTextField08.clear();
         asiakasTable.getSelectionModel().clearSelection(); // Poistetaan valinta taulukosta
     }
 
@@ -386,11 +384,21 @@ public class AsiakashallintaController {
         String puhelin = normalizeWhitespace(muokkaaAsiakasTextField03.getText()).replaceAll("\\s+", "");
         String postinumero = normalizeWhitespace(muokkaaAsiakasTextField06.getText());
         String kunta = normalizeWhitespace(muokkaaAsiakasTextField07.getText());
-        String maa = normalizeWhitespace(muokkaaAsiakasTextField08.getText()); // Maa otetaan talteen
 
-        if (katuosoite.isBlank() || email.isBlank() || puhelin.isBlank() || postinumero.isBlank() || kunta.isBlank() || maa.isBlank()) {
+        if (katuosoite.isBlank() || email.isBlank() || puhelin.isBlank() || postinumero.isBlank() || kunta.isBlank()) {
             showError("Virhe", "Kaikki kentät ovat pakollisia.");
             return;
+        }
+
+        String[] postialueOsat = valittuAsiakasViewModel.getPostialue().split(" ");
+        String maa = "";
+        if (postialueOsat.length > 2) {
+            maa = postialueOsat[2];
+        } else if (postialueOsat.length == 2) {
+            // Joskus maa saattaa puuttua tai olla tyhjä ViewModelissä
+            // Voit päättää, miten tällaisessa tilanteessa toimitaan.
+            // Tässä esimerkissä jätetään maa tyhjäksi.
+            maa = "";
         }
 
         Postialue postialue = new Postialue(postinumero, kunta, maa);
