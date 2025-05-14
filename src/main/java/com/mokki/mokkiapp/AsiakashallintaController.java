@@ -56,38 +56,39 @@ public class AsiakashallintaController {
     @FXML
     private Button lisaaAsiakasButton;
 
-    // TextFieldit (lisää asiakas)
+    // TextFieldit (lisää asiakas) - Vastaavat nyt FXML:ää
     @FXML
-    private TextField lisaaAsiakasTextField01;
+    private TextField lisaaAsiakasTextField01; // Etunimi / Yrityksen nimi (Rivi 1) - Label
     @FXML
-    private TextField lisaaAsiakasTextField02;
+    private TextField lisaaAsiakasTextField02; // Sukunimi / Y-tunnus (Rivi 2) - Label
     @FXML
-    private TextField lisaaAsiakasTextField03;
+    private TextField lisaaAsiakasTextField03; // Puhelin (Rivi 3) - Label
     @FXML
-    private TextField lisaaAsiakasTextField04;
+    private TextField lisaaAsiakasTextField04; // Email (Rivi 4) - Label
     @FXML
-    private TextField lisaaAsiakasTextField05;
+    private TextField lisaaAsiakasTextField05; // Katuosoite (Rivi 5) - Label
     @FXML
-    private TextField lisaaAsiakasTextField06;
+    private TextField lisaaAsiakasTextField06; // Postinumero (Rivi 6) - Label
     @FXML
-    private TextField lisaaAsiakasTextField07;
-    // Poistettu: @FXML private TextField lisaaAsiakasTextField08;
+    private TextField lisaaAsiakasTextField07; // Kunta (Rivi 7) - Label
     @FXML
-    private TextField lisaaAsiakasTextField11;
+    private TextField lisaaAsiakasTextField08; // Maa (Rivi 8) - Label
     @FXML
-    private TextField lisaaAsiakasTextField12;
+    private TextField lisaaAsiakasTextField11; // Etunimi / Yrityksen nimi (Sarake 1, Rivi 1) - Syöte
     @FXML
-    private TextField lisaaAsiakasTextField13;
+    private TextField lisaaAsiakasTextField12; // Sukunimi / Y-tunnus (Sarake 1, Rivi 2) - Syöte
     @FXML
-    private TextField lisaaAsiakasTextField14;
+    private TextField lisaaAsiakasTextField13; // Puhelin (Sarake 1, Rivi 3) - Syöte
     @FXML
-    private TextField lisaaAsiakasTextField15;
+    private TextField lisaaAsiakasTextField14; // Email (Sarake 1, Rivi 4) - Syöte
     @FXML
-    private TextField lisaaAsiakasTextField16;
+    private TextField lisaaAsiakasTextField15; // Katuosoite (Sarake 1, Rivi 5) - Syöte
     @FXML
-    private TextField lisaaAsiakasTextField17;
+    private TextField lisaaAsiakasTextField16; // Postinumero (Sarake 1, Rivi 6) - Syöte
     @FXML
-    private TextField lisaaAsiakasTextField18;
+    private TextField lisaaAsiakasTextField17; // Kunta (Sarake 1, Rivi 7) - Syöte
+    @FXML
+    private TextField lisaaAsiakasTextField18; // Maa (Sarake 1, Rivi 8) - Syöte
 
     // TextFieldit (muokkaa asiakastietoja)
     @FXML
@@ -104,18 +105,16 @@ public class AsiakashallintaController {
     private TextField muokkaaAsiakasTextField06;
     @FXML
     private TextField muokkaaAsiakasTextField07;
-    // Poistettu: @FXML private TextField muokkaaAsiakasTextField08;
 
     // Muokkaa asiakastietoja tabin matskut
     @FXML
     private Button muokkaaButton;
-
     @FXML
     private Button peruutaButton;
 
     // Poista asiakas tabin matskut
     @FXML
-    private Button poistaAsiakasButton; // Lisätty poista-painike
+    private Button poistaAsiakasButton;
 
     private ObservableList<AsiakasUnifiedViewModel> asiakasData = FXCollections.observableArrayList();
 
@@ -133,7 +132,7 @@ public class AsiakashallintaController {
 
         paivitaAsiakastaulukko();
 
-        // Alustetaan "lisää asiakas" tabin matskut (säilytetään ennallaan)
+        // Alustetaan "lisää asiakas" tabin matskut - Nyt kaverisi logiikalla
         lisaaAsiakasComboBox.getItems().addAll("Yksityishenkilö", "Yritys");
         lisaaAsiakasTextField01.setEditable(false);
         lisaaAsiakasTextField02.setEditable(false);
@@ -142,12 +141,45 @@ public class AsiakashallintaController {
         lisaaAsiakasTextField05.setEditable(false);
         lisaaAsiakasTextField06.setEditable(false);
         lisaaAsiakasTextField07.setEditable(false);
-        // Poistettu: lisaaAsiakasTextField08.setEditable(false);
+        lisaaAsiakasTextField08.setEditable(false);
 
         lisaaAsiakasComboBox.setOnAction(event -> {
             String selected = lisaaAsiakasComboBox.getValue();
             if (selected != null) {
-                // ... (säilytetään ennallaan) ...
+                switch (selected) {
+                    case "Yksityishenkilö":
+                        lisaaAsiakasTextField01.setText("Etunimi");
+                        lisaaAsiakasTextField02.setText("Sukunimi");
+                        lisaaAsiakasTextField03.setText("Puhelin");
+                        lisaaAsiakasTextField04.setText("Email");
+                        lisaaAsiakasTextField05.setText("Katuosoite");
+                        lisaaAsiakasTextField06.setText("Postinumero");
+                        lisaaAsiakasTextField07.setText("Kunta");
+                        lisaaAsiakasTextField08.setText("Maa");
+                        break;
+                    case "Yritys":
+                        lisaaAsiakasTextField01.setText("Yrityksen nimi");
+                        lisaaAsiakasTextField02.setText("Y-tunnus");
+                        lisaaAsiakasTextField03.setText("Puhelin");
+                        lisaaAsiakasTextField04.setText("Email");
+                        lisaaAsiakasTextField05.setText("Katuosoite");
+                        lisaaAsiakasTextField06.setText("Postinumero");
+                        lisaaAsiakasTextField07.setText("Kunta");
+                        lisaaAsiakasTextField08.setText("Maa");
+                        break;
+                    default:
+                        System.out.println("Unknown selection");
+                }
+            } else {
+                // Tyhjennetään tekstit, jos valinta poistetaan
+                lisaaAsiakasTextField01.setText("");
+                lisaaAsiakasTextField02.setText("");
+                lisaaAsiakasTextField03.setText("");
+                lisaaAsiakasTextField04.setText("");
+                lisaaAsiakasTextField05.setText("");
+                lisaaAsiakasTextField06.setText("");
+                lisaaAsiakasTextField07.setText("");
+                lisaaAsiakasTextField08.setText("");
             }
         });
 
@@ -155,12 +187,10 @@ public class AsiakashallintaController {
             lisaaAsiakasButton.setVisible(newValue);
         });
 
-        // Asetetaan listener "poista asiakas" -nappiin
         poistaAsiakasTab.selectedProperty().addListener((observable, oldValue, newValue) -> {
             poistaAsiakasButton.setVisible(newValue);
         });
 
-        // Asetetaan listener "muokkaa asiakastietoja" -välilehdelle
         muokkaaAsiakasTab.selectedProperty().addListener((observable, oldValue, newValue) -> {
             muokkaaButton.setVisible(newValue);
             peruutaButton.setVisible(newValue);
@@ -168,11 +198,10 @@ public class AsiakashallintaController {
             if (newValue && valittuAsiakas != null) {
                 taytaMuokkaaLomake(valittuAsiakas);
             } else if (newValue) {
-                tyhjennaMuokkaaLomake(); // Tyhjennetään lomake, jos ei valittu asiakasta
+                tyhjennaMuokkaaLomake();
             }
         });
 
-        // Lisätään kuuntelija taulukon valintaan
         asiakasTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<AsiakasUnifiedViewModel>() {
             @Override
             public void changed(ObservableValue<? extends AsiakasUnifiedViewModel> observable, AsiakasUnifiedViewModel oldValue, AsiakasUnifiedViewModel newValue) {
@@ -182,10 +211,11 @@ public class AsiakashallintaController {
             }
         });
 
-        poistaAsiakasButton.setVisible(false); // Piilotetaan aluksi
-        muokkaaButton.setVisible(false); // Piilotetaan aluksi
-        peruutaButton.setVisible(false); // Piilotetaan aluksi
+        poistaAsiakasButton.setVisible(false);
+        muokkaaButton.setVisible(false);
+        peruutaButton.setVisible(false);
     }
+
 
     @FXML
     public void onTakaisinButtonClick(ActionEvent event) throws IOException {
@@ -321,6 +351,14 @@ public class AsiakashallintaController {
     }
 
     private void clearForm() {
+        lisaaAsiakasTextField01.clear();
+        lisaaAsiakasTextField02.clear();
+        lisaaAsiakasTextField03.clear();
+        lisaaAsiakasTextField04.clear();
+        lisaaAsiakasTextField05.clear();
+        lisaaAsiakasTextField06.clear();
+        lisaaAsiakasTextField07.clear();
+        lisaaAsiakasTextField08.clear();
         lisaaAsiakasTextField11.clear();
         lisaaAsiakasTextField12.clear();
         lisaaAsiakasTextField13.clear();
@@ -336,7 +374,6 @@ public class AsiakashallintaController {
         muokkaaAsiakasTextField05.clear();
         muokkaaAsiakasTextField06.clear();
         muokkaaAsiakasTextField07.clear();
-        // Poistettu: muokkaaAsiakasTextField08.clear();
         lisaaAsiakasComboBox.setValue(null);
     }
 
@@ -355,22 +392,17 @@ public class AsiakashallintaController {
         String[] postialueOsat = asiakas.getPostialue().split(" ", 2);
         muokkaaAsiakasTextField06.setText(postialueOsat[0]);
         muokkaaAsiakasTextField07.setText(postialueOsat.length > 1 ? postialueOsat[1] : "");
-        // Poistettu: muokkaaAsiakasTextField08.setText(""); // Maa ei ole eritelty ViewModelissä
+        // Maa ei ole eritelty ViewModelissä tällä hetkellä
     }
 
     @FXML
     private void onPeruutaButtonClick(ActionEvent event) {
-        // Palautetaan muokkauslomakkeen tiedot siihen asiakkaaseen, joka oli valittuna
-        // taulukossa ennen muokkaamisen aloittamista.
         AsiakasUnifiedViewModel valittuAsiakas = asiakasTable.getSelectionModel().getSelectedItem();
         if (valittuAsiakas != null) {
             taytaMuokkaaLomake(valittuAsiakas);
         } else {
-            // Jos mitään asiakasta ei ole valittu (mikä voisi olla outoa tässä kohtaa),
-            // tyhjennetään lomake varmuuden vuoksi.
             tyhjennaMuokkaaLomake();
         }
-        // Poistetaan myös taulukon valinta, jotta seuraava muokkaus alkaa puhtaalta pöydältä.
         asiakasTable.getSelectionModel().clearSelection();
     }
 
@@ -382,8 +414,7 @@ public class AsiakashallintaController {
         muokkaaAsiakasTextField05.clear();
         muokkaaAsiakasTextField06.clear();
         muokkaaAsiakasTextField07.clear();
-        // Poistettu: muokkaaAsiakasTextField08.clear();
-        asiakasTable.getSelectionModel().clearSelection(); // Poistetaan valinta taulukosta
+        asiakasTable.getSelectionModel().clearSelection();
     }
 
     @FXML
@@ -410,11 +441,6 @@ public class AsiakashallintaController {
         String maa = "";
         if (postialueOsat.length > 2) {
             maa = postialueOsat[2];
-        } else if (postialueOsat.length == 2) {
-            // Joskus maa saattaa puuttua tai olla tyhjä ViewModelissä
-            // Voit päättää, miten tällaisessa tilanteessa toimitaan.
-            // Tässä esimerkissä jätetään maa tyhjäksi.
-            maa = "";
         }
 
         Postialue postialue = new Postialue(postinumero, kunta, maa);
