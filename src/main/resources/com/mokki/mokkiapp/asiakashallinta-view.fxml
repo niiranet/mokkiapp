@@ -231,7 +231,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <children>
                 <Button fx:id="lisaaAsiakasButton" layoutX="349.0" layoutY="11.0" mnemonicParsing="false" onAction="#onLisaaAsiakasButtonClick" prefHeight="25.0" prefWidth="131.0" text="Lisää asiakas" />
                 <Button fx:id="muokkaaButton" onAction="#onMuokkaaAsiakasButtonClick" layoutX="811.0" layoutY="8.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="115.0" text="Muokkaa" />
-                <Button fx:id="peruutaButton" layoutX="960.0" layoutY="8.0" mnemonicParsing="false" text="Peruuta" />
+                <Button fx:id="peruutaButton" onAction="#onPeruutaButtonClick" layoutX="960.0" layoutY="8.0" mnemonicParsing="false" text="Peruuta" />
             </children>
         </AnchorPane>
     </children>

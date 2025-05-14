@@ -358,6 +358,22 @@ public class AsiakashallintaController {
         // Poistettu: muokkaaAsiakasTextField08.setText(""); // Maa ei ole eritelty ViewModelissä
     }
 
+    @FXML
+    private void onPeruutaButtonClick(ActionEvent event) {
+        // Palautetaan muokkauslomakkeen tiedot siihen asiakkaaseen, joka oli valittuna
+        // taulukossa ennen muokkaamisen aloittamista.
+        AsiakasUnifiedViewModel valittuAsiakas = asiakasTable.getSelectionModel().getSelectedItem();
+        if (valittuAsiakas != null) {
+            taytaMuokkaaLomake(valittuAsiakas);
+        } else {
+            // Jos mitään asiakasta ei ole valittu (mikä voisi olla outoa tässä kohtaa),
+            // tyhjennetään lomake varmuuden vuoksi.
+            tyhjennaMuokkaaLomake();
+        }
+        // Poistetaan myös taulukon valinta, jotta seuraava muokkaus alkaa puhtaalta pöydältä.
+        asiakasTable.getSelectionModel().clearSelection();
+    }
+
     private void tyhjennaMuokkaaLomake() {
         muokkaaAsiakasTextField01.clear();
         muokkaaAsiakasTextField02.clear();
