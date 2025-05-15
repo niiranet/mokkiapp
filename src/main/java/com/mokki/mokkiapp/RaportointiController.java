@@ -6,7 +6,7 @@ import com.mokki.mokkiapp.dao.VarausDAO;
 import com.mokki.mokkiapp.model.Mokki;
 import com.mokki.mokkiapp.model.Raportti;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -37,7 +37,7 @@ public class RaportointiController {
     @FXML private Label raporttiOtsikkoLabel;
     @FXML private TableView<Raportti> varausTableView;
     @FXML private TableColumn<Raportti, Integer> mokkiIDColumn;
-    @FXML private TableColumn<Raportti, String> asiakasColumn;
+    @FXML private TableColumn<Raportti, Integer> asiakasIDColumn; 
     @FXML private TableColumn<Raportti, String> pvmColumn;
     @FXML private TableColumn<Raportti, String> hintaColumn;
 
@@ -57,12 +57,12 @@ public class RaportointiController {
         // Aseta TableView-sarakkeet
         mokkiIDColumn.setCellValueFactory(c ->
                 new SimpleIntegerProperty(c.getValue().getMokki().getMokkiId()).asObject());
-        asiakasColumn.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getAsiakas().toString()));
+        asiakasIDColumn.setCellValueFactory(c ->
+                new SimpleIntegerProperty(c.getValue().getAsiakas().getAsiakasId()).asObject());  // Now shows ID
         pvmColumn.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getVaraus().getAlku().toString()));
+                new SimpleObjectProperty<>(c.getValue().getVaraus().getAlku().toString()));
         hintaColumn.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getLasku().getSumma().toString()));
+                new SimpleObjectProperty<>(c.getValue().getLasku().getSumma().toString()));
     }
 
     @FXML
