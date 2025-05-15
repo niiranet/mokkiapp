@@ -40,7 +40,7 @@ public class LaskuDAO {
                         rs.getInt("lasku_id"),
                         rs.getInt("varaus_id"),
                         rs.getBigDecimal("summa"),
-                        rs.getString("tilinro"),
+                        rs.getString("viitenro"), //
                         rs.getDate("erapaiva"),
                         rs.getDate("maksupvm"),
                         rs.getBoolean("maksettu")
@@ -80,7 +80,7 @@ public class LaskuDAO {
     }
 
     public int lisaaLasku(Lasku lasku) throws SQLException {
-        String sql = "INSERT INTO Lasku (varaus_id, summa, tilinro, erapaiva, maksupvm, maksettu) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Lasku (varaus_id, summa, viitenro, erapaiva, maksupvm, maksettu) VALUES (?, ?, ?, ?, ?, ?)"; //
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

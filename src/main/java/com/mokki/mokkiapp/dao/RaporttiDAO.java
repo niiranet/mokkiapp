@@ -46,7 +46,7 @@ public class RaporttiDAO {
                y.etunimi, y.sukunimi, r.y_tunnus, r.yrityksen_nimi,
                m.mokki_id, m.nimi AS mokki_nimi, m.katuosoite AS mokki_osoite,
                m.hinta, m.kuvaus,
-               l.lasku_id, l.summa, l.tilinro, l.erapaiva, l.maksupvm, l.maksettu
+               l.lasku_id, l.summa, l.viitenro, l.erapaiva, l.maksupvm, l.maksettu
         FROM Varaus v
         JOIN Asiakas a ON v.asiakas_id = a.asiakas_id
         LEFT JOIN Yksityishenkilo y ON a.asiakas_id = y.asiakas_id
@@ -106,7 +106,7 @@ public class RaporttiDAO {
                             rs.getInt("lasku_id"),
                             rs.getInt("varaus_id"),
                             rs.getBigDecimal("summa"),
-                            rs.getString("tilinro"),
+                            rs.getString("viitenro"),
                             rs.getDate("erapaiva"),
                             rs.getDate("maksupvm"),
                             rs.getBoolean("maksettu")
