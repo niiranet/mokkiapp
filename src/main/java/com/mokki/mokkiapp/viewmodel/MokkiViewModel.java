@@ -36,4 +36,12 @@ public class MokkiViewModel {
     public Mokki toMokki(Postialue postialue) {
         return new Mokki(mokkiId.get(), nimi.get(), katuosoite.get(), hinta.get(), kuvaus.get(), postialue);
     }
+
+    public int getMokkiId() { return mokkiId.get(); }
+    public String getNimi() { return nimi.get(); }
+    public String getKatuosoite() { return katuosoite.get(); }
+    public String getKuvaus() { return kuvaus.get(); }
+    public BigDecimal getHinta() { return hinta.get(); }
+    public String getPostinumero() { return postinumero.get(); }
+
 }

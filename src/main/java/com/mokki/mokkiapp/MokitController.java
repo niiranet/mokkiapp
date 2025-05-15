@@ -92,27 +92,27 @@ public class MokitController {
         MokkiViewModel valittu = mokitTaulukko.getSelectionModel().getSelectedItem();
         if (valittu != null) {
             try {
-                String nimi = mokinNimiKentta.getText();
-                String katuosoite = osoiteKentta.getText();
-                String postinumero = postinumeroKentta.getText();
-                BigDecimal hinta = new BigDecimal(hintaKentta.getText());
-                String kuvaus = kuvausKentta.getText();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("muokkaa-mokki-view.fxml"));
+                Parent root = loader.load();
 
-                Postialue postialue = new Postialue(postinumero, "", "Suomi");
-                miscDAO.lisaaPostialue(postialue); // Varmista että postialue on olemassa
+                MuokkaaMokkiController controller = loader.getController();
+                controller.setMokki(valittu);
 
-                Mokki paivitettyMokki = new Mokki(valittu.mokkiIdProperty().get(), nimi, katuosoite, hinta, kuvaus, postialue);
-                MokkiDAO.paivitaMokki(paivitettyMokki);
-                lataaMokit();
-                tyhjennaKentat();
-            } catch (Exception e) {
+                Stage stage = new Stage();
+                stage.setTitle("Muokkaa mökkiä");
+                stage.setScene(new Scene(root));
+                stage.showAndWait();
+
+                lataaMokit(); // Päivitä lista ikkunan sulkeuduttua
+
+            } catch (IOException e) {
                 e.printStackTrace();
-                naytaVirhe("Virhe muokatessa mökkiä.");
             }
         } else {
             naytaVirhe("Valitse mökki muokataksesi sitä.");
         }
     }
+
 
     @FXML
     private void handlePoista(ActionEvent event) {

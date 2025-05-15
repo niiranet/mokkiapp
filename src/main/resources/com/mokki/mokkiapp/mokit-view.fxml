@@ -50,122 +50,122 @@
 <?import javafx.scene.text.Font?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mokki.mokkiapp.MokitController">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem mnemonicParsing="false" text="New" />
-            <MenuItem mnemonicParsing="false" text="Open…" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Close" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As…" />
-            <MenuItem mnemonicParsing="false" text="Revert" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Preferences…" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Quit" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
-          <items>
-            <MenuItem mnemonicParsing="false" text="Undo" />
-            <MenuItem mnemonicParsing="false" text="Redo" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Cut" />
-            <MenuItem mnemonicParsing="false" text="Copy" />
-            <MenuItem mnemonicParsing="false" text="Paste" />
-            <MenuItem mnemonicParsing="false" text="Delete" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Select All" />
-            <MenuItem mnemonicParsing="false" text="Unselect All" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-          <items>
-            <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
-          </items>
-        </Menu>
-      </menus>
-    </MenuBar>
-      <HBox prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Button id="mokitTakaisinEtusivulle" mnemonicParsing="false" onAction="#onTakaisinButtonClick" text="Etusivu">
-               <font>
-                  <Font size="38.0" />
-               </font>
-            </Button>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="871.0" text="Mökit">
-               <font>
-                  <Font size="48.0" />
-               </font>
-            </Label>
-         </children>
-      </HBox>
-      <TableView fx:id="mokitTaulukko" prefHeight="200.0" prefWidth="200.0">
-        <columns>
-          <TableColumn fx:id="mokkiIdSarake" prefWidth="75.0" text="Mökki ID" />
-          <TableColumn fx:id="mokinNimiSarake" prefWidth="75.0" text="Mökin nimi" />
-            <TableColumn fx:id="katuosoiteSarake" prefWidth="75.0" text="Katuosoite" />
-            <TableColumn fx:id="postinumeroSarake" prefWidth="75.0" text="Postinumero" />
-            <TableColumn fx:id="hintaSarake" prefWidth="75.0" text="Hinta" />
-            <TableColumn fx:id="kuvausSarake" prefWidth="75.0" text="Kuvaus" />
-        </columns>
-      </TableView>
-      <GridPane>
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label text="Nimi" />
-            <Label text="Osoite" GridPane.rowIndex="1" />
-            <Label text="Postinumero" GridPane.rowIndex="2" />
-            <Label text="Hinta (€)" GridPane.rowIndex="3" />
-            <Label text="Kuvaus" GridPane.rowIndex="4" />
-            <TextField fx:id="mokinNimiKentta" GridPane.columnIndex="1" />
-            <TextField fx:id="osoiteKentta" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="postinumeroKentta" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <TextField fx:id="hintaKentta" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <TextField fx:id="kuvausKentta" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-         </children>
-      </GridPane>
-      <HBox prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Button fx:id="lisaaNappi" mnemonicParsing="false" onAction="#handleLisaa" text="Lisää">
-               <padding>
-                  <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
-               </padding>
-               <HBox.margin>
-                  <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
-               </HBox.margin>
-            </Button>
-            <Button fx:id="muokkaaNappi" mnemonicParsing="false" onAction="#handleMuokkaa" text="Muokkaa">
-               <HBox.margin>
-                  <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
-               </HBox.margin>
-               <padding>
-                  <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
-               </padding>
-            </Button>
-            <Button fx:id="poistaNappi" mnemonicParsing="false" onAction="#handlePoista" text="Poista">
-               <padding>
-                  <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
-               </padding>
-               <HBox.margin>
-                  <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
-               </HBox.margin>
-            </Button>
-         </children>
-      </HBox>
-  </children>
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="New" />
+                        <MenuItem mnemonicParsing="false" text="Open…" />
+                        <Menu mnemonicParsing="false" text="Open Recent" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem mnemonicParsing="false" text="Save" />
+                        <MenuItem mnemonicParsing="false" text="Save As…" />
+                        <MenuItem mnemonicParsing="false" text="Revert" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Preferences…" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Quit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Undo" />
+                        <MenuItem mnemonicParsing="false" text="Redo" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Cut" />
+                        <MenuItem mnemonicParsing="false" text="Copy" />
+                        <MenuItem mnemonicParsing="false" text="Paste" />
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Select All" />
+                        <MenuItem mnemonicParsing="false" text="Unselect All" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <HBox prefHeight="100.0" prefWidth="200.0">
+            <children>
+                <Button id="mokitTakaisinEtusivulle" mnemonicParsing="false" onAction="#onTakaisinButtonClick" text="Etusivu">
+                    <font>
+                        <Font size="38.0" />
+                    </font>
+                </Button>
+                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="53.0" prefWidth="871.0" text="Mökit">
+                    <font>
+                        <Font size="48.0" />
+                    </font>
+                </Label>
+            </children>
+        </HBox>
+        <TableView fx:id="mokitTaulukko" prefHeight="300.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="mokkiIdSarake" prefWidth="75.0" text="Mökki ID" />
+                <TableColumn fx:id="mokinNimiSarake" prefWidth="75.0" text="Mökin nimi" />
+                <TableColumn fx:id="katuosoiteSarake" prefWidth="75.0" text="Katuosoite" />
+                <TableColumn fx:id="postinumeroSarake" prefWidth="75.0" text="Postinumero" />
+                <TableColumn fx:id="hintaSarake" prefWidth="75.0" text="Hinta" />
+                <TableColumn fx:id="kuvausSarake" prefWidth="75.0" text="Kuvaus" />
+            </columns>
+        </TableView>
+        <GridPane>
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label text="Nimi" />
+                <Label text="Osoite" GridPane.rowIndex="1" />
+                <Label text="Postinumero" GridPane.rowIndex="2" />
+                <Label text="Hinta (€)" GridPane.rowIndex="3" />
+                <Label text="Kuvaus" GridPane.rowIndex="4" />
+                <TextField fx:id="mokinNimiKentta" GridPane.columnIndex="1" />
+                <TextField fx:id="osoiteKentta" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <TextField fx:id="postinumeroKentta" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <TextField fx:id="hintaKentta" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="kuvausKentta" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            </children>
+        </GridPane>
+        <HBox prefHeight="100.0" prefWidth="200.0">
+            <children>
+                <Button fx:id="lisaaNappi" mnemonicParsing="false" onAction="#handleLisaa" text="Lisää">
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                    </padding>
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+                    </HBox.margin>
+                </Button>
+                <Button fx:id="muokkaaNappi" mnemonicParsing="false" onAction="#handleMuokkaa" text="Muokkaa">
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+                    </HBox.margin>
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="poistaNappi" mnemonicParsing="false" onAction="#handlePoista" text="Poista">
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                    </padding>
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+    </children>
 </VBox>
