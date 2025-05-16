@@ -265,7 +265,7 @@ public class AsiakashallintaController {
                     return;
                 }
                 if (!ytunnus.matches("\\d{7}-\\d")) {
-                    showError("Virhe", "Virheellinen Y-tunnus. Varmista, että se on muotoa XXXXXXXX-X.");
+                    showError("Virhe", "Virheellinen Y-tunnus. Varmista, että se on muotoa XXXXXXX-X.");
                     return;
                 }
                 uusiAsiakas = new Yritys(0, katuosoite, email, puhelin, postialue, yrityksenNimi, ytunnus);
@@ -463,7 +463,7 @@ public class AsiakashallintaController {
                 return;
             }
             if (!ytunnus.matches("\\d{7}-\\d")) {
-                showError("Virhe", "Virheellinen Y-tunnus. Varmista, että se on muotoa XXXXXXXX-X.");
+                showError("Virhe", "Virheellinen Y-tunnus. Varmista, että se on muotoa XXXXXXX-X.");
                 return;
             }
             muokattuAsiakas = new Yritys(valittuAsiakasViewModel.getAsiakasId(), katuosoite, email, puhelin, postialue, yrityksenNimi, ytunnus);
